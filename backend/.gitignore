@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Generated Prisma files
+/generated/prisma/
+backend/generated/prisma/
+
+# Logs
+logs/
+*.log
+
+# Backup Git repository
+backend/.git-backup/
+
+# AI coding assistant files
+backend/.agents/
+backend/.claude/
+backend/.windsurf/
+frontend/AGENTS.md
+frontend/CLAUDE.md

@@ -1,0 +1,730 @@
+
+/* =========================================
+   WEATHERMN — MODERN HEADER
+========================================= */
+
+.header {
+    --header-bg: rgba(255, 255, 255, 0.94);
+    --header-text: #0f172a;
+    --header-muted: #64748b;
+    --header-border: #e2e8f0;
+    --menu-bg: #f8fafc;
+    --hover-bg: #eff6ff;
+    --hover-text: #1d4ed8;
+    --active-bg: #2563eb;
+    --active-text: #ffffff;
+    --control-bg: #ffffff;
+    --control-border: #dbe3ef;
+
+    position: relative;
+    z-index: 100;
+
+    width: 100%;
+
+    background: var(--header-bg);
+    color: var(--header-text);
+    border-bottom: 1px solid var(--header-border);
+
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.045);
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease;
+}
+
+/* =========================================
+   HEADER TOP
+========================================= */
+
+.header-top {
+    width: 100%;
+    max-width: 1440px;
+    min-height: 88px;
+
+    margin: 0 auto;
+    padding: 0 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+/* =========================================
+   LOGO
+========================================= */
+
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+
+    padding: 0;
+
+    border: none;
+    background: transparent;
+    color: inherit;
+
+    text-align: left;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.logo-icon {
+    position: relative;
+
+    width: 49px;
+    height: 49px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 16px;
+
+    background: linear-gradient(135deg, #2563eb, #38bdf8);
+    color: #ffffff;
+
+    font-size: 27px;
+
+    box-shadow: 0 6px 15px rgba(37, 99, 235, 0.2);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.logo:hover .logo-icon {
+    transform: translateY(-2px);
+    box-shadow: 0 9px 20px rgba(37, 99, 235, 0.28);
+}
+
+.logo-sun {
+    position: absolute;
+    top: 4px;
+    right: 3px;
+
+    font-size: 13px;
+    color: #fde68a;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.logo-title {
+    color: var(--header-text);
+
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    line-height: 1.1;
+
+    transition: color 0.25s ease;
+}
+
+.logo-title span {
+    color: #2563eb;
+}
+
+.logo-subtitle {
+    color: var(--header-muted);
+
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+
+    transition: color 0.25s ease;
+}
+
+/* =========================================
+   HEADER ACTIONS
+========================================= */
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+}
+
+.header-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    color: var(--header-muted);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    background: #22c55e;
+
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+}
+
+/* =========================================
+   THEME TOGGLE
+========================================= */
+
+.theme-toggle {
+    min-height: 42px;
+    padding: 0 15px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    border: 1px solid var(--control-border);
+    border-radius: 13px;
+
+    background: var(--control-bg);
+    color: var(--header-text);
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+    white-space: nowrap;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--hover-bg);
+    border-color: #93c5fd;
+    transform: translateY(-1px);
+}
+
+.theme-icon {
+    font-size: 19px;
+    line-height: 1;
+    color: #2563eb;
+}
+
+.theme-label {
+    line-height: 1;
+}
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+.menu {
+    width: 100%;
+
+    background: var(--menu-bg);
+    border-top: 1px solid var(--header-border);
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.menu-inner {
+    width: 100%;
+    max-width: 1440px;
+    min-height: 58px;
+
+    margin: 0 auto;
+    padding: 7px 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+/* =========================================
+   NAVIGATION BUTTONS
+========================================= */
+
+.menu-link {
+    position: relative;
+
+    min-height: 43px;
+    padding: 0 19px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    border: 1px solid transparent;
+    border-radius: 12px;
+
+    background: transparent;
+    color: var(--header-muted);
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 650;
+
+    white-space: nowrap;
+    cursor: pointer;
+
+    transition:
+        color 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.menu-link:hover {
+    background: var(--hover-bg);
+    color: var(--hover-text);
+}
+
+.menu-link:active {
+    transform: scale(0.98);
+}
+
+.menu-link.active {
+    background: var(--active-bg);
+    color: var(--active-text);
+    border-color: var(--active-bg);
+
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);
+}
+
+.menu-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+/* =========================================
+   KEYBOARD FOCUS
+========================================= */
+
+.logo:focus-visible,
+.theme-toggle:focus-visible,
+.menu-link:focus-visible {
+    outline: 3px solid #60a5fa;
+    outline-offset: 3px;
+}
+
+/* =========================================
+   DARK MODE
+========================================= */
+
+:root[data-theme="dark"] .header {
+    --header-bg: rgba(15, 23, 42, 0.97);
+    --header-text: #f8fafc;
+    --header-muted: #a8b6ca;
+    --header-border: #263449;
+    --menu-bg: #111c30;
+    --hover-bg: #1e3351;
+    --hover-text: #bfdbfe;
+    --active-bg: #2563eb;
+    --active-text: #ffffff;
+    --control-bg: #172338;
+    --control-border: #33445d;
+
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+:root[data-theme="dark"] .logo-title span {
+    color: #60a5fa;
+}
+
+:root[data-theme="dark"] .theme-icon {
+    color: #fbbf24;
+}
+
+/* =========================================
+   RESPONSIVE TABLET
+========================================= */
+
+@media (max-width: 900px) {
+    .header-top {
+        padding: 0 22px;
+    }
+
+    .menu-inner {
+        padding-right: 22px;
+        padding-left: 22px;
+        gap: 5px;
+    }
+
+    .menu-link {
+        padding: 0 13px;
+    }
+
+    .header-status {
+        display: none;
+    }
+}
+
+/* =========================================
+   RESPONSIVE MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+    .header-top {
+        min-height: 76px;
+        padding: 13px 16px;
+
+        gap: 10px;
+    }
+
+    .logo {
+        gap: 9px;
+        min-width: 0;
+    }
+
+    .logo-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+        font-size: 23px;
+    }
+
+    .logo-sun {
+        font-size: 11px;
+    }
+
+    .logo-title {
+        font-size: 21px;
+    }
+
+    .logo-subtitle {
+        font-size: 10px;
+    }
+
+    .header-actions {
+        gap: 0;
+    }
+
+    .theme-toggle {
+        min-height: 40px;
+        padding: 0 11px;
+        gap: 6px;
+        border-radius: 11px;
+    }
+
+    .theme-label {
+        font-size: 12px;
+    }
+
+    .menu-inner {
+        min-height: 55px;
+        padding: 7px 12px;
+
+        justify-content: flex-start;
+        gap: 6px;
+
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .menu-inner::-webkit-scrollbar {
+        display: none;
+    }
+
+    .menu-link {
+        min-height: 39px;
+        padding: 0 13px;
+        gap: 6px;
+
+        border-radius: 10px;
+        font-size: 12px;
+    }
+
+    .menu-icon {
+        font-size: 16px;
+    }
+}
+
+/* =========================================
+   EXTRA SMALL MOBILE
+========================================= */
+
+@media (max-width: 380px) {
+    .header-top {
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    .logo-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+    }
+
+    .logo-title {
+        font-size: 18px;
+    }
+
+    .logo-subtitle {
+        font-size: 9px;
+    }
+
+    .theme-toggle {
+        padding: 0 9px;
+    }
+}
+
+/* =========================================
+   REDUCED MOTION
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .header,
+    .logo-icon,
+    .theme-toggle,
+    .menu-link {
+        transition: none;
+    }
+}
+
+/* =========================================
+   STATION SEARCH LAYOUT
+========================================= */
+
+.station-layout {
+    display: grid;
+    grid-template-columns: minmax(260px, 330px) minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+    margin-bottom: 24px;
+}
+
+.station-panel,
+.station-weather-panel {
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgb(15 23 42 / 5%);
+}
+
+.station-panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.station-panel-heading h2,
+.station-weather-panel h2 {
+    margin: 4px 0 0;
+    font-size: 19px;
+    font-weight: 750;
+}
+
+.station-total {
+    display: inline-flex;
+    min-width: 34px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    border-radius: 10px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.compact-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0 11px;
+    border: 1px solid #dbe2ea;
+    border-radius: 11px;
+    background: #f8fafc;
+}
+
+.compact-search input {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #0f172a;
+    font-size: 13px;
+}
+
+.compact-search button {
+    border: 0;
+    background: transparent;
+    color: #64748b;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.station-list-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 15px 0 8px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.station-list {
+    max-height: 390px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.station-row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 9px;
+    border: 0;
+    border-bottom: 1px solid #edf0f4;
+    border-radius: 9px;
+    background: transparent;
+    color: #1e293b;
+    text-align: left;
+    cursor: pointer;
+    transition: background .15s ease;
+}
+
+.station-row:hover,
+.station-row.active {
+    background: #fff7e6;
+}
+
+.station-pin {
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+.station-row-info {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.station-row-info strong,
+.station-row-info small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.station-row-info strong {
+    font-size: 13px;
+}
+
+.station-row-info small {
+    color: #64748b;
+    font-size: 11px;
+}
+
+.station-check {
+    color: #b7791f;
+    font-weight: 800;
+}
+
+.station-empty {
+    padding: 20px 8px;
+    color: #64748b;
+    font-size: 13px;
+    text-align: center;
+}
+
+.station-weather-panel {
+    min-height: 260px;
+    padding: 24px;
+    background: linear-gradient(135deg, #ffffff, #f5f8ff);
+}
+
+.station-weather-panel .eyebrow {
+    color: #b7791f;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .12em;
+}
+
+.station-location {
+    margin-top: 7px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.station-weather-summary {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+}
+
+.station-weather-icon {
+    font-size: 42px;
+}
+
+.station-temperature {
+    font-size: clamp(42px, 6vw, 68px);
+    font-weight: 750;
+    letter-spacing: -0.05em;
+}
+
+.station-weather-summary > span:last-child {
+    width: 100%;
+    color: #475569;
+    font-size: 14px;
+}
+
+.station-weather-loading,
+.station-weather-note,
+.station-weather-error {
+    margin-top: 20px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.station-weather-note {
+    color: #64748b;
+}
+
+.station-weather-error {
+    color: #b91c1c;
+}
+
+@media (max-width: 760px) {
+    .station-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .station-panel,
+    .station-weather-panel {
+        padding: 14px;
+        border-radius: 14px;
+    }
+
+    .station-list {
+        max-height: 300px;
+    }
+
+    .station-weather-panel {
+        min-height: 210px;
+    }
+}

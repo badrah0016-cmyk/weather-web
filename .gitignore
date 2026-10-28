@@ -1,0 +1,13 @@
+@"
+node_modules/
+
+# Environment variables
+.env
+
+# Prisma generated files
+/generated/prisma
+
+# Winston logs
+logs/
+*.log
+"@ | Set-Content .gitignore

@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Stantsuud {
+  stantsDugaar String   @id @map("stants_dugaar") @db.VarChar(10)
+  ner          String   @db.VarChar(100)
+  nerEn        String?  @map("ner_en") @db.VarChar(100)
+  aimag        String?  @db.VarChar(100)
+  urgurug      Decimal? @db.Decimal(9,5)
+  urtrag       Decimal? @db.Decimal(9,5)
+  undur        Int?
+
+  @@map("stantsuud")
+}

@@ -1,0 +1,200 @@
+
+/* =========================================
+   MONGOLIA WEATHER MAP
+========================================= */
+
+.mongolia-map-wrapper {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 560px;
+  min-height: 420px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #e8eef5;
+  isolation: isolate;
+}
+
+/* =========================================
+   LEAFLET MAP CONTAINER
+========================================= */
+
+.mongolia-map-wrapper .mongolia-map,
+.mongolia-map-wrapper .leaflet-container {
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  background: #e8eef5;
+  font-family: Arial, sans-serif;
+  z-index: 0;
+}
+
+/* =========================================
+   TEMPERATURE LABEL
+   Дугуйрсан өнцөгтэй тэгш өнцөгт
+========================================= */
+
+.mongolia-map-wrapper .weather-temperature-marker {
+  background: transparent;
+  border: none;
+}
+
+.mongolia-map-wrapper .weather-temperature-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  height: 30px;
+  padding: 0 8px;
+  box-sizing: border-box;
+
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+
+  background: var(--temperature-color, #64748b);
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+
+  box-shadow: 0 2px 8px rgb(0 0 0 / 22%);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mongolia-map-wrapper .weather-temperature-label:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
+  cursor: pointer;
+}
+
+.mongolia-map-wrapper
+.weather-temperature-label.is-selected {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+  transform: scale(1.1);
+  z-index: 1000;
+}
+
+/* =========================================
+   WEATHER POPUP
+========================================= */
+
+.mongolia-map-wrapper .leaflet-popup-content-wrapper {
+  border-radius: 10px;
+}
+
+.mongolia-map-wrapper .leaflet-popup-content {
+  margin: 12px;
+  line-height: 1.6;
+}
+
+/* =========================================
+   MAP LEGEND
+========================================= */
+
+.mongolia-map-wrapper .weather-map-legend,
+.mongolia-map-wrapper .river-map-status {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 500;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+
+  max-width: calc(100% - 24px);
+  padding: 12px 14px;
+
+  border: 1px solid rgb(148 163 184 / 35%);
+  border-radius: 10px;
+
+  background: rgb(255 255 255 / 95%);
+  color: #1e293b;
+
+  font-size: 11px;
+  box-shadow: 0 4px 16px rgb(15 23 42 / 12%);
+}
+
+.mongolia-map-wrapper .weather-map-legend strong,
+.mongolia-map-wrapper .river-legend strong {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mongolia-map-wrapper .weather-map-legend span,
+.mongolia-map-wrapper .river-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mongolia-map-wrapper .weather-map-legend i,
+.mongolia-map-wrapper .river-legend i {
+  display: inline-block;
+  flex: 0 0 9px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+/* =========================================
+   RIVER LEGEND
+========================================= */
+
+.mongolia-map-wrapper .river-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.mongolia-map-wrapper .river-map-error {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+/* =========================================
+   ERROR MESSAGE
+========================================= */
+
+.weather-map-error {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 640px) {
+  .mongolia-map-wrapper {
+    height: 460px;
+    min-height: 400px;
+    border-radius: 12px;
+  }
+
+  .mongolia-map-wrapper .weather-map-legend,
+  .mongolia-map-wrapper .river-map-status {
+    right: 8px;
+    bottom: 8px;
+    gap: 6px 9px;
+    max-width: calc(100% - 16px);
+    padding: 9px 10px;
+    font-size: 10px;
+  }
+
+  .mongolia-map-wrapper .weather-temperature-label {
+    min-width: 48px;
+    height: 27px;
+    padding: 0 6px;
+    border-radius: 7px;
+    font-size: 12px;
+  }
+}

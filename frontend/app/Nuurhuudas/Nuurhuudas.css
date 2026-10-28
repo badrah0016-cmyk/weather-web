@@ -1,0 +1,568 @@
+/* =====================================================
+   nuurhuudas.css — Нүүр хуудасны бүх стиль
+   Dark горим: html дээр .dark class эсвэл data-theme="dark"
+   ===================================================== */
+
+/* ---------- Өнгөний хувьсагчид ---------- */
+:root {
+  --np-page-bg: #f1f5f9;
+  --np-text: #0f172a;
+  --np-title: #0f172a;
+  --np-card-bg: #ffffff;
+  --np-card-border: #e2e8f0;
+  --np-card-shadow: 0 10px 15px -3px rgba(203, 213, 225, 0.5);
+  --np-tile-bg: #f8fafc;
+  --np-tile-border: #e2e8f0;
+  --np-nested-bg: #f1f5f9;
+  --np-muted: #475569;
+  --np-soft: #334155;
+  --np-faint: #64748b;
+  --np-eyebrow: #d97706;
+  --np-accent-bg: #fffbeb;
+  --np-accent-border: #f59e0b;
+  --np-orange: #ea580c;
+  --np-sky: #0284c7;
+  --np-drop-bg: #ffffff;
+  --np-drop-border: #cbd5e1;
+  --np-hover-bg: #fffbeb;
+  --np-chart-card-bg: #ffffff;
+  --np-chart-divider: #f1f5f9;
+  --np-empty-border: #cbd5e1;
+}
+
+.dark,
+:root[data-theme="dark"],
+[data-theme="dark"] {
+  --np-page-bg: #0a1128;
+  --np-text: #f1f5f9;
+  --np-title: #ffffff;
+  --np-card-bg: #111d44;
+  --np-card-border: #26376f;
+  --np-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  --np-tile-bg: #0d1736;
+  --np-tile-border: #2a3b7d;
+  --np-nested-bg: #111e43;
+  --np-muted: #94a3b8;
+  --np-soft: #cbd5e1;
+  --np-faint: #94a3b8;
+  --np-eyebrow: #fcd34d;
+  --np-accent-bg: #26376f;
+  --np-accent-border: #fcd34d;
+  --np-orange: #fdba74;
+  --np-sky: #7dd3fc;
+  --np-drop-bg: #14224f;
+  --np-drop-border: #3a4c8f;
+  --np-hover-bg: #26376f;
+  --np-chart-card-bg: #101a38;
+  --np-chart-divider: #26385f;
+  --np-empty-border: #34466d;
+}
+
+/* ---------- Хуудас ---------- */
+.np-page {
+  min-height: 100vh;
+  background: var(--np-page-bg);
+  color: var(--np-text);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.np-main {
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ---------- Card ---------- */
+.np-card {
+  border-radius: 1rem;
+  border: 1px solid var(--np-card-border);
+  background: var(--np-card-bg);
+  padding: 1rem;
+  box-shadow: var(--np-card-shadow);
+}
+
+.np-card-raised { position: relative; z-index: 30; }
+.np-card-col { display: flex; min-width: 0; flex-direction: column; }
+.np-card-min { min-width: 0; }
+
+/* ---------- Нийтлэг текст ---------- */
+.np-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--np-eyebrow);
+}
+.np-eyebrow-mb { margin-bottom: 0.375rem; }
+
+.np-section-title {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.np-section-title h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--np-title);
+}
+
+.np-empty {
+  padding: 1.5rem 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--np-muted);
+}
+
+.np-error-amber { margin-top: 0.75rem; font-size: 0.875rem; color: var(--np-eyebrow); }
+.np-error-red { margin-top: 0.75rem; font-size: 0.875rem; color: #dc2626; }
+.dark .np-error-red, [data-theme="dark"] .np-error-red { color: #fca5a5; }
+.np-loading { margin-top: 0.75rem; font-size: 0.875rem; color: var(--np-muted); animation: np-pulse 2s ease-in-out infinite; }
+@keyframes np-pulse { 50% { opacity: 0.5; } }
+
+/* ---------- 1. Байршил хайх ---------- */
+.np-search-row { display: flex; flex-direction: column; gap: 1rem; }
+.np-search-box { position: relative; }
+
+.np-input-wrap { position: relative; }
+.np-input-icon {
+  pointer-events: none;
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--np-muted);
+}
+.np-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--np-tile-border);
+  background: var(--np-tile-bg);
+  padding: 0.75rem 2.5rem;
+  font-size: 0.875rem;
+  color: var(--np-title);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.np-input::placeholder { color: var(--np-faint); }
+.np-input:focus { border-color: var(--np-accent-border); }
+.np-input-clear {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--np-muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.np-input-clear:hover { color: var(--np-title); }
+
+.np-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 50;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid var(--np-drop-border);
+  background: var(--np-drop-bg);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+}
+.np-dropdown-scroll { max-height: 18rem; overflow-y: auto; }
+.np-dropdown-empty { padding: 0.75rem; font-size: 0.875rem; color: var(--np-muted); }
+.np-dropdown-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  font-size: 0.875rem;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.np-dropdown-item:hover,
+.np-dropdown-item-selected { background: var(--np-hover-bg); }
+.np-dropdown-area { font-size: 0.75rem; color: var(--np-muted); }
+
+.np-strip-wrap { display: flex; min-width: 0; flex: 1; align-items: center; gap: 0.5rem; }
+.np-strip-arrow {
+  display: none;
+  height: 2.25rem;
+  width: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid var(--np-tile-border);
+  background: var(--np-tile-bg);
+  color: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.np-strip-arrow:hover { border-color: var(--np-accent-border); }
+
+.np-strip {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.np-strip::-webkit-scrollbar { display: none; }
+
+.np-strip-item {
+  display: flex;
+  min-width: 92px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 0.75rem;
+  border: 1px solid var(--np-tile-border);
+  background: var(--np-tile-bg);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.np-strip-item:hover { border-color: #94a3b8; }
+.np-strip-item-selected,
+.np-strip-item-selected:hover {
+  border-color: var(--np-accent-border);
+  background: var(--np-accent-bg);
+}
+.np-strip-name { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--np-soft); }
+.np-strip-icon { font-size: 1.25rem; }
+.np-strip-temp { font-size: 0.875rem; color: var(--np-title); }
+
+/* ---------- Анхааруулга ---------- */
+.np-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.1);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.np-alert:hover { background: rgba(251, 191, 36, 0.2); }
+.np-alert-icon { font-size: 1.25rem; }
+.np-alert-text { flex: 1; }
+.np-alert-arrow { color: var(--np-eyebrow); }
+
+/* ---------- 2. Одоогийн цаг агаар + газрын зураг ---------- */
+.np-hero-grid { display: grid; grid-template-columns: 1fr; align-items: stretch; gap: 1.25rem; }
+
+.np-current-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+.np-current-head-text { min-width: 0; }
+.np-station-title { margin-top: 0.25rem; overflow-wrap: anywhere; font-size: 1.25rem; font-weight: 700; color: var(--np-title); }
+.np-station-sub { font-size: 0.875rem; color: var(--np-muted); }
+.np-info-link {
+  display: flex;
+  height: 2rem;
+  width: 2rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid var(--np-drop-border);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--np-soft);
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.np-info-link:hover { border-color: var(--np-accent-border); color: var(--np-eyebrow); }
+
+.np-temp-row { margin-top: 1rem; display: flex; align-items: center; gap: 1rem; }
+.np-temp-icon { flex-shrink: 0; font-size: 3.75rem; }
+.np-temp-block { min-width: 0; }
+.np-temp-value { font-size: 3rem; font-weight: 800; line-height: 1; color: var(--np-title); }
+.np-temp-cond { margin-top: 0.5rem; overflow-wrap: anywhere; font-size: 0.875rem; color: var(--np-soft); }
+
+.np-minmax {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  border-bottom: 1px solid var(--np-tile-border);
+  padding-bottom: 1rem;
+  font-size: 0.875rem;
+}
+.np-minmax span { color: var(--np-muted); }
+.np-max { color: var(--np-orange); }
+.np-min { color: var(--np-sky); }
+
+.np-mini-grid { margin-top: 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+.np-mini { border-radius: 0.75rem; background: var(--np-nested-bg); padding: 0.75rem; }
+.np-mini-label { font-size: 0.75rem; color: var(--np-faint); }
+.np-mini-value { margin-top: 0.25rem; font-size: 1.125rem; font-weight: 700; color: var(--np-title); }
+.np-mini-note { margin-top: 0.25rem; font-size: 0.75rem; color: var(--np-faint); }
+.np-updated { margin-top: 1rem; font-size: 0.75rem; color: var(--np-faint); }
+
+.np-map-box {
+  position: relative;
+  margin-top: 0.75rem;
+  min-height: 420px;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid var(--np-tile-border);
+  background: var(--np-tile-bg);
+}
+.np-map-inner { position: absolute; inset: 0; }
+
+/* ---------- Дэлгэрэнгүй мэдээлэл ---------- */
+.np-details-card { margin-top: 1.25rem; min-width: 0; }
+.np-details-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+.np-tile { border-radius: 0.75rem; border: 1px solid var(--np-tile-border); background: var(--np-tile-bg); padding: 0.75rem; }
+.np-tile-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--np-muted); }
+.np-tile-icon { font-size: 1rem; }
+.np-tile-value { margin-top: 0.25rem; font-size: 1.125rem; font-weight: 700; color: var(--np-title); }
+.np-tile-note { font-size: 0.75rem; color: var(--np-muted); }
+.np-tile-extra { font-size: 0.75rem; color: var(--np-soft); }
+
+/* ---------- 3. Цаг тутмын ---------- */
+.np-pill {
+  border-radius: 9999px;
+  background: var(--np-tile-bg);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--np-soft);
+}
+.np-hourly-row { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; }
+.np-hour {
+  display: flex;
+  min-width: 78px;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--np-tile-border);
+  background: var(--np-tile-bg);
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+}
+.np-hour-now { border-color: var(--np-accent-border); background: var(--np-accent-bg); }
+.np-hour-time { font-size: 0.875rem; font-weight: 700; color: var(--np-title); }
+.np-hour-day { height: 1rem; font-size: 10px; color: var(--np-muted); }
+.np-hour-icon { font-size: 1.5rem; }
+.np-hour-temp { font-size: 1rem; color: var(--np-title); }
+.np-hour-hum { font-size: 11px; color: var(--np-sky); }
+.np-hour-cond {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2rem;
+  font-size: 10px;
+  line-height: 1rem;
+  color: var(--np-muted);
+}
+
+/* ---------- 4. 7 хоногийн урьдчилсан мэдээ ---------- */
+.np-section-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+.np-forecast-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 0.375rem; }
+.np-more-btn {
+  border-radius: 0.5rem;
+  background: #fcd34d;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0d1530;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.np-more-btn:hover { background: #fde68a; }
+.np-legend { display: flex; gap: 0.75rem; font-size: 0.75rem; color: var(--np-muted); }
+.np-legend span { display: flex; align-items: center; gap: 0.375rem; }
+.np-legend-dot { display: inline-block; height: 0.625rem; width: 0.625rem; border-radius: 9999px; }
+.np-legend-orange { background: #fb923c; }
+.np-legend-sky { background: #38bdf8; }
+
+.np-daily-scroll { width: 100%; overflow-x: auto; padding-bottom: 0.25rem; }
+.np-daily-inner { min-width: 640px; }
+.np-daily-grid { display: grid; gap: 0.5rem; }
+.np-day {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--np-tile-border);
+  background: var(--np-tile-bg);
+  padding: 1rem 0.5rem;
+  text-align: center;
+}
+.np-day-today { border-color: var(--np-accent-border); background: var(--np-accent-bg); }
+.np-day-name { font-size: 0.875rem; color: var(--np-title); }
+.np-day-date { font-size: 0.75rem; color: var(--np-muted); }
+.np-day-icon { margin: 0.5rem 0; font-size: 1.875rem; }
+.np-day-cond {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--np-soft);
+}
+.np-day-temps { margin-top: 0.5rem; font-size: 0.875rem; font-weight: 700; }
+.np-slash { color: var(--np-faint); }
+
+/* ---------- Температурын SVG график ---------- */
+.np-svg-chart { margin-top: 0.5rem; width: 100%; }
+.np-svg-zero-line { stroke: #64748b; }
+.np-svg-zero-label { fill: var(--np-faint); font-size: 11px; }
+.np-svg-grid-line { stroke: var(--np-card-border); }
+.np-svg-line-max { fill: none; stroke: #fb923c; }
+.np-svg-line-min { fill: none; stroke: #38bdf8; }
+.np-svg-dot-max { fill: #fb923c; stroke: var(--np-card-bg); }
+.np-svg-dot-min { fill: #38bdf8; stroke: var(--np-card-bg); }
+.np-svg-label { font-size: 14px; font-weight: 700; }
+.np-svg-label-max { fill: var(--np-orange); }
+.np-svg-label-min { fill: var(--np-sky); }
+
+/* ---------- Хур тунадасны энгийн график ---------- */
+.forecast-chart-card {
+  border-radius: 1rem;
+  border: 1px solid var(--np-card-border);
+  background: var(--np-card-bg);
+  padding: 1.25rem;
+  box-shadow: var(--np-card-shadow);
+}
+.forecast-chart-card h2 { font-size: 1.125rem; font-weight: 700; color: var(--np-title); }
+.forecast-chart-card p { margin: 0.25rem 0 1rem; font-size: 0.875rem; color: var(--np-muted); }
+
+/* ---------- Хур тунадас / Салхи — том график картууд ---------- */
+.np-charts-grid { display: grid; grid-template-columns: 1fr; align-items: stretch; gap: 1.25rem; }
+
+.np-chart-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid #e0f2fe;
+  background: var(--np-chart-card-bg);
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s;
+}
+.np-chart-card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.12); }
+.np-chart-card-orange { border-color: #ffedd5; }
+.dark .np-chart-card, [data-theme="dark"] .np-chart-card { border-color: #26385f; }
+
+.np-chart-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+.np-chart-head-left { display: flex; min-width: 0; align-items: center; gap: 0.75rem; }
+.np-chart-icon {
+  display: flex;
+  height: 3rem;
+  width: 3rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  font-size: 1.5rem;
+  background: #e0f2fe;
+}
+.np-chart-icon-orange { background: #ffedd5; }
+.dark .np-chart-icon { background: rgba(56, 189, 248, 0.15); }
+.dark .np-chart-icon-orange { background: rgba(251, 146, 60, 0.15); }
+.np-chart-title { font-size: 1.125rem; font-weight: 700; color: var(--np-title); }
+.np-chart-sub { margin-top: 0.25rem; font-size: 0.875rem; color: var(--np-faint); }
+
+.np-unit {
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  background: #f0f9ff;
+  color: #0369a1;
+}
+.np-unit-orange { background: #fff7ed; color: #c2410c; }
+.dark .np-unit { background: rgba(56, 189, 248, 0.1); color: #7dd3fc; }
+.dark .np-unit-orange { background: rgba(251, 146, 60, 0.1); color: #fdba74; }
+
+.np-chart-note { margin-top: 1.25rem; border-radius: 1rem; padding: 1rem; background: linear-gradient(to right, #f0f9ff, #ecfeff); }
+.np-chart-note-orange { background: linear-gradient(to right, #fff7ed, #fffbeb); }
+.dark .np-chart-note { background: linear-gradient(to right, rgba(56, 189, 248, 0.1), rgba(34, 211, 238, 0.05)); }
+.dark .np-chart-note-orange { background: linear-gradient(to right, rgba(251, 146, 60, 0.1), rgba(251, 191, 36, 0.05)); }
+.np-chart-note-row { display: flex; align-items: center; gap: 0.5rem; }
+.np-chart-note-dot { height: 0.625rem; width: 0.625rem; border-radius: 9999px; background: #0ea5e9; }
+.np-chart-note-dot-orange { background: #f97316; }
+.np-chart-note-label { font-size: 0.875rem; font-weight: 500; color: var(--np-muted); }
+.np-chart-note-text { margin-top: 0.5rem; font-size: 0.75rem; line-height: 1.25rem; color: var(--np-faint); }
+
+.np-chart-body { margin-top: 1.25rem; height: 280px; width: 100%; min-width: 0; }
+.np-chart-empty {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  border: 1px dashed var(--np-empty-border);
+  font-size: 0.875rem;
+  color: var(--np-faint);
+}
+.np-chart-foot { margin-top: auto; border-top: 1px solid var(--np-chart-divider); padding-top: 1rem; }
+.np-chart-foot-row { display: flex; align-items: flex-start; gap: 0.5rem; }
+.np-chart-foot-icon { font-size: 1rem; }
+.np-chart-foot-text { font-size: 0.75rem; line-height: 1.25rem; color: var(--np-faint); }
+
+/* ---------- Responsive ---------- */
+@media (min-width: 640px) {
+  .np-main { padding: 1.5rem 1.25rem; }
+  .np-card { padding: 1.25rem; }
+  .np-section-title h2 { font-size: 1.25rem; }
+  .np-strip-arrow { display: flex; }
+  .np-station-title { font-size: 1.5rem; }
+  .np-temp-icon { font-size: 4.5rem; }
+  .np-temp-value { font-size: 3.75rem; }
+  .np-details-grid { grid-template-columns: repeat(3, 1fr); }
+  .np-tile-value { font-size: 1.25rem; }
+  .np-chart-card { padding: 1.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .np-main { gap: 1.5rem; }
+  .np-search-row { flex-direction: row; align-items: center; }
+  .np-search-box { width: 20rem; }
+  .np-hero-grid,
+  .np-section-grid { grid-template-columns: repeat(12, 1fr); }
+  .np-col-5 { grid-column: span 5 / span 5; }
+  .np-col-7 { grid-column: span 7 / span 7; }
+  .np-col-12 { grid-column: span 12 / span 12; }
+  .np-details-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 1280px) {
+  .np-charts-grid { grid-template-columns: repeat(2, 1fr); }
+}
