@@ -1,207 +1,77 @@
+
 import winston from "winston";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// ==========================================
-// FILE PATH
-// ==========================================
+// Vercel дээр файлын лог бичихгүй.
+const IS_VERCEL = process.env.VERCEL === "1";
 
-const __filename =
-    fileURLToPath(import.meta.url);
+const logsDir = path.resolve(__dirname, "..", "logs");
 
-const __dirname =
-    path.dirname(__filename);
-
-const logsDir =
-    path.join(
-        __dirname,
-        "..",
-        "logs"
-    );
-
-
-// ==========================================
-// LOG FOLDER ҮҮСГЭХ
-// ==========================================
-
-if (!fs.existsSync(logsDir)) {
-
-    fs.mkdirSync(
-        logsDir,
-        {
-            recursive: true
-        }
-    );
-
+// Зөвхөн локал орчинд logs хавтас үүсгэнэ.
+if (!IS_VERCEL) {
+    try {
+        fs.mkdirSync(logsDir, { recursive: true });
+    } catch (error) {
+        console.error("Logs хавтас үүсгэхэд алдаа:", error.message);
+    }
 }
 
-
-// ==========================================
-// LOG FORMAT
-// ==========================================
-
-const logFormat =
-    winston.format.printf(
-        ({
-            level,
-            message,
-            timestamp,
-            stack
-        }) => {
-
-            const logMessage =
-                stack || message;
-
-            return (
-                `${timestamp} [${level.toUpperCase()}] ${logMessage}`
-            );
-
-        }
-    );
-
-
-// ==========================================
-// LOGGER ҮҮСГЭХ FUNCTION
-// ==========================================
+const logFormat = winston.format.combine(
+    winston.format.timestamp({
+        format: "YYYY-MM-DD HH:mm:ss"
+    }),
+    winston.format.errors({ stack: true }),
+    winston.format.printf(({ level, message, timestamp, stack }) => {
+        return `${timestamp} [${level.toUpperCase()}] ${stack || message}`;
+    })
+);
 
 function createLogger(name) {
+    const transports = [
+        new winston.transports.Console()
+    ];
+
+    // Локал компьютер дээр файлд лог хадгална.
+    if (!IS_VERCEL) {
+        transports.push(
+            new winston.transports.File({
+                filename: path.join(logsDir, `${name}.log`)
+            }),
+            new winston.transports.File({
+                filename: path.join(logsDir, `${name}-error.log`),
+                level: "error"
+            })
+        );
+    }
 
     return winston.createLogger({
-
         level: "info",
-
-        format:
-            winston.format.combine(
-
-                winston.format.timestamp({
-
-                    format:
-                        "YYYY-MM-DD HH:mm:ss"
-
-                }),
-
-                winston.format.errors({
-
-                    stack: true
-
-                }),
-
-                logFormat
-
-            ),
-
-        transports: [
-
-            // ==================================
-            // БҮХ LOG
-            // ==================================
-
-            new winston.transports.File({
-
-                filename:
-                    path.join(
-                        logsDir,
-                        `${name}.log`
-                    )
-
-            }),
-
-
-            // ==================================
-            // ERROR LOG
-            // ==================================
-
-            new winston.transports.File({
-
-                filename:
-                    path.join(
-                        logsDir,
-                        `${name}-error.log`
-                    ),
-
-                level: "error"
-
-            }),
-
-
-            // ==================================
-            // CONSOLE
-            // ==================================
-
-            new winston.transports.Console()
-
-        ]
-
+        format: logFormat,
+        transports
     });
-
 }
 
-
-// ==========================================
-// ОДООГИЙН ЦАГ АГААР
-// ==========================================
-
 export const odoogiinTsagAgaarLogger =
-    createLogger(
-        "odoogiin-tsag-agaar"
-    );
-
-
-// ==========================================
-// УРЬДЧИЛСАН МЭДЭЭ
-// ==========================================
+    createLogger("odoogiin-tsag-agaar");
 
 export const uridchilsanMedeeLogger =
-    createLogger(
-        "uridchilsan-medee"
-    );
-
-
-// ==========================================
-// АГААРЫН ЧАНАР
-// ==========================================
+    createLogger("uridchilsan-medee");
 
 export const agaarChanarLogger =
-    createLogger(
-        "agaar-chanar"
-    );
-
-
-// ==========================================
-// ГОЛ УСНЫ ГИДРОЛОГИ
-// ==========================================
+    createLogger("agaar-chanar");
 
 export const golUsHydrologyLogger =
-    createLogger(
-        "gol-us-hydrology"
-    );
-
-
-// ==========================================
-// ЦАГ АГААРЫН САНУУЛГА
-// ==========================================
+    createLogger("gol-us-hydrology");
 
 export const tsagAgaarSanuulgaLogger =
-    createLogger(
-        "tsag-agaar-sanuulga"
-    );
-
-
-// ==========================================
-// СТАНЦУУД
-// ==========================================
+    createLogger("tsag-agaar-sanuulga");
 
 export const stantsuudLogger =
-    createLogger(
-        "stantsuud"
-    );
-
-
-// ==========================================
-// DEFAULT LOGGER
-// ==========================================
+    createLogger("stantsuud");
 
 export default odoogiinTsagAgaarLogger;
-
