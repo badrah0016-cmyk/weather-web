@@ -1,16 +1,15 @@
+
 {
   "name": "backend",
   "version": "1.0.0",
   "description": "Weather website backend API",
   "main": "server.js",
-  
-"scripts": {
-  "start": "node server.js",
-  "dev": "node server.js",
-  "postinstall": "prisma generate --config prisma7.config.ts",
-  "test": "echo \"Error: no test specified\" && exit 1"
-},
-
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "postinstall": "prisma generate --config prisma7.config.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "keywords": [
     "weather",
     "api",
@@ -43,4 +42,3 @@
     "tsx": "^4.23.15"
   }
 }
-
