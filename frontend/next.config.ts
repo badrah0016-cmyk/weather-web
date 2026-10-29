@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
         return [
             {
                 source: "/backend/:path*",
-                destination: "http://localhost:4000/:path*",
+                destination: `${process.env.BACKEND_URL || "http://localhost:4000"}/:path*`,
             },
         ];
     },
