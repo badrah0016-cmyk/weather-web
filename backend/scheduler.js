@@ -1,8 +1,9 @@
-import { execFile } from "child_process";
+
+import { execFile } from "node:child_process";
 import winston from "winston";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // =====================================================
 // PATH
@@ -17,95 +18,61 @@ const __dirname = path.dirname(__filename);
 
 const TIMEZONE = "Asia/Ulaanbaatar";
 
+// Vercel дээр функцийн файл хадгалах системд бичихгүй.
+const IS_VERCEL = process.env.VERCEL === "1";
+
 // =====================================================
 // LOGS FOLDER
 // =====================================================
 
-const logsDir = path.join(
-    __dirname,
-    "logs"
-);
+const logsDir = path.join(__dirname, "logs");
 
-if (!fs.existsSync(logsDir)) {
-
-    fs.mkdirSync(
-        logsDir,
-        {
-            recursive: true
+if (!IS_VERCEL) {
+    try {
+        if (!fs.existsSync(logsDir)) {
+            fs.mkdirSync(logsDir, { recursive: true });
         }
-    );
-
+    } catch (error) {
+        console.error("Logs хавтас үүсгэхэд алдаа:", error.message);
+    }
 }
 
 // =====================================================
 // SCHEDULER LOGGER
 // =====================================================
 
-const schedulerLogger = winston.createLogger({
+const logFormat = winston.format.combine(
+    winston.format.timestamp({
+        format: "YYYY-MM-DD HH:mm:ss"
+    }),
+    winston.format.errors({ stack: true }),
+    winston.format.printf(({ level, message, timestamp, stack }) => {
+        const logMessage = stack || message;
+        return `${timestamp} [${level.toUpperCase()}] ${logMessage}`;
+    })
+);
 
-    level: "info",
+const transports = [
+    new winston.transports.Console()
+];
 
-    format: winston.format.combine(
-
-        winston.format.timestamp({
-            format: "YYYY-MM-DD HH:mm:ss"
-        }),
-
-        winston.format.errors({
-            stack: true
-        }),
-
-        winston.format.printf(
-            ({
-                level,
-                message,
-                timestamp,
-                stack
-            }) => {
-
-                const logMessage =
-                    stack || message;
-
-                return `${timestamp} [${level.toUpperCase()}] ${logMessage}`;
-
-            }
-        )
-
-    ),
-
-    transports: [
-
-        // =============================================
-        // БҮХ SCHEDULER LOG
-        // =============================================
-
+// Зөвхөн локал орчинд файлд лог хадгална.
+if (!IS_VERCEL) {
+    transports.push(
         new winston.transports.File({
-            filename: path.join(
-                logsDir,
-                "scheduler.log"
-            )
+            filename: path.join(logsDir, "scheduler.log")
         }),
-
-        // =============================================
-        // ЗӨВХӨН ERROR
-        // =============================================
-
         new winston.transports.File({
-            filename: path.join(
-                logsDir,
-                "scheduler-error.log"
-            ),
+            filename: path.join(logsDir, "scheduler-error.log"),
             level: "error"
-        }),
+        })
+    );
+}
 
-        // =============================================
-        // CONSOLE
-        // =============================================
-
-        new winston.transports.Console()
-
-    ]
-
+const schedulerLogger = winston.createLogger({
+    level: "info",
+    format: logFormat,
+    transports
 });
 
 // =====================================================
@@ -113,236 +80,123 @@ const schedulerLogger = winston.createLogger({
 // =====================================================
 
 export function getCurrentTime() {
-
-    return new Date().toLocaleString(
-        "mn-MN",
-        {
-            timeZone: TIMEZONE,
-            hour12: false
-        }
-    );
-
+    return new Date().toLocaleString("mn-MN", {
+        timeZone: TIMEZONE,
+        hour12: false
+    });
 }
 
 // =====================================================
 // RUN SCRIPT
 // =====================================================
 
-export function runScript(
-    file,
-    description
-) {
+export function runScript(file, description) {
+    return new Promise((resolve) => {
+        const startTime = getCurrentTime();
+        const filePath = path.join(__dirname, file);
 
-    return new Promise(
-        (resolve) => {
+        console.log("");
+        console.log("==========================================");
+        console.log(`⏰ Эхэлсэн цаг: ${startTime}`);
+        console.log(`🚀 ${description} эхэллээ`);
+        console.log(`📄 Script: ${file}`);
+        console.log("==========================================");
 
-            const startTime =
-                getCurrentTime();
+        schedulerLogger.info(
+            `🚀 ${description} эхэллээ | Script: ${file} | Эхэлсэн цаг: ${startTime}`
+        );
 
-            const filePath =
-                path.join(
-                    __dirname,
-                    file
-                );
+        // Файл байгаа эсэхийг шалгах
+        if (!fs.existsSync(filePath)) {
+            const errorMessage = `Script файл олдсонгүй: ${filePath}`;
 
-            // =========================================
-            // START MESSAGE
-            // =========================================
+            console.error(`❌ ${errorMessage}`);
+            schedulerLogger.error(errorMessage);
 
-            console.log("");
+            resolve(false);
+            return;
+        }
 
-            console.log(
-                "=========================================="
-            );
+        // Vercel дээр child process ажиллуулах нь хязгаарлалттай
+        // тул scheduled script-ийг ажиллуулахгүй.
+        if (IS_VERCEL) {
+            const message =
+                `Vercel орчинд scheduler script ажиллуулахыг алгаслаа: ${file}`;
 
-            console.log(
-                `⏰ Эхэлсэн цаг: ${startTime}`
-            );
+            console.warn(`⚠️ ${message}`);
+            schedulerLogger.warn(message);
 
-            console.log(
-                `🚀 ${description} эхэллээ`
-            );
+            resolve(false);
+            return;
+        }
 
-            console.log(
-                `📄 Script: ${file}`
-            );
+        execFile(
+            process.execPath,
+            [filePath],
+            {
+                cwd: __dirname,
+                windowsHide: true,
+                timeout: 10 * 60 * 1000
+            },
+            (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`❌ ${description} алдаа`);
+                    console.error(error.message);
 
-            console.log(
-                "=========================================="
-            );
-
-            schedulerLogger.info(
-                `🚀 ${description} эхэллээ | Script: ${file} | Эхэлсэн цаг: ${startTime}`
-            );
-
-            // =========================================
-            // FILE EXISTS CHECK
-            // =========================================
-
-            if (!fs.existsSync(filePath)) {
-
-                const errorMessage =
-                    `Script файл олдсонгүй: ${filePath}`;
-
-                console.error("");
-
-                console.error(
-                    `❌ ${errorMessage}`
-                );
-
-                schedulerLogger.error(
-                    `❌ ${errorMessage}`
-                );
-
-                resolve(false);
-
-                return;
-            }
-
-            // =========================================
-            // EXECUTE NODE SCRIPT
-            // =========================================
-
-            execFile(
-
-                process.execPath,
-
-                [filePath],
-
-                {
-                    cwd: __dirname,
-                    windowsHide: true
-                },
-
-                (
-                    error,
-                    stdout,
-                    stderr
-                ) => {
-
-                    // =================================
-                    // ERROR
-                    // =================================
-
-                    if (error) {
-
-                        console.error("");
-
-                        console.error(
-                            `❌ ${description} алдаа`
-                        );
-
-                        console.error(
-                            error.message
-                        );
-
-                        schedulerLogger.error(
-                            `❌ ${description} алдаа | Script: ${file} | ${error.message}`
-                        );
-
-                        if (stderr) {
-
-                            schedulerLogger.error(
-                                `📄 STDERR:\n${stderr.trim()}`
-                            );
-
-                        }
-
-                        resolve(false);
-
-                        return;
-                    }
-
-                    // =================================
-                    // STDERR
-                    // =================================
+                    schedulerLogger.error(
+                        `❌ ${description} алдаа | Script: ${file} | ${error.message}`
+                    );
 
                     if (stderr) {
-
-                        console.warn("");
-
-                        console.warn(
-                            `⚠️ ${description} STDERR`
+                        schedulerLogger.error(
+                            `STDERR:\n${stderr.trim()}`
                         );
-
-                        console.warn(
-                            stderr
-                        );
-
-                        schedulerLogger.warn(
-                            `⚠️ ${description} STDERR:\n${stderr.trim()}`
-                        );
-
                     }
 
-                    // =================================
-                    // STDOUT
-                    // =================================
-
-                    if (stdout) {
-
-                        console.log("");
-
-                        console.log(
-                            `📋 ${description} OUTPUT`
-                        );
-
-                        console.log(
-                            stdout
-                        );
-
-                        schedulerLogger.info(
-                            `📋 ${description} OUTPUT:\n${stdout.trim()}`
-                        );
-
-                    }
-
-                    // =================================
-                    // SUCCESS
-                    // =================================
-
-                    const endTime =
-                        getCurrentTime();
-
-                    console.log("");
-
-                    console.log(
-                        "=========================================="
-                    );
-
-                    console.log(
-                        `✅ ${description} амжилттай дууслаа`
-                    );
-
-                    console.log(
-                        `⏰ Дууссан цаг: ${endTime}`
-                    );
-
-                    console.log(
-                        "=========================================="
-                    );
-
-                    schedulerLogger.info(
-                        `✅ ${description} амжилттай дууслаа | Script: ${file} | Дууссан цаг: ${endTime}`
-                    );
-
-                    resolve(true);
-
+                    resolve(false);
+                    return;
                 }
 
-            );
+                if (stderr) {
+                    console.warn(`⚠️ ${description} STDERR`);
+                    console.warn(stderr);
 
-        }
-    );
+                    schedulerLogger.warn(
+                        `STDERR:\n${stderr.trim()}`
+                    );
+                }
 
+                if (stdout) {
+                    console.log(`📋 ${description} OUTPUT`);
+                    console.log(stdout);
+
+                    schedulerLogger.info(
+                        `OUTPUT:\n${stdout.trim()}`
+                    );
+                }
+
+                const endTime = getCurrentTime();
+
+                console.log("==========================================");
+                console.log(`✅ ${description} амжилттай дууслаа`);
+                console.log(`⏰ Дууссан цаг: ${endTime}`);
+                console.log("==========================================");
+
+                schedulerLogger.info(
+                    `✅ ${description} амжилттай дууслаа | Script: ${file} | Дууссан цаг: ${endTime}`
+                );
+
+                resolve(true);
+            }
+        );
+    });
 }
 
 // =====================================================
 // SCHEDULER START
 // =====================================================
 
-const serverStartTime =
-    getCurrentTime();
+const serverStartTime = getCurrentTime();
 
 schedulerLogger.info(
     `🟢 WEATHER SCHEDULER эхэллээ | Timezone: ${TIMEZONE} | Эхэлсэн цаг: ${serverStartTime}`
