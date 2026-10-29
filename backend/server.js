@@ -21,7 +21,13 @@ import {
 // CRON SCHEDULER
 // =====================================================
 
-import "./cron.js";
+// CRON SCHEDULER
+// Local орчинд cron ажиллана.
+// Vercel дээр байнгын cron процесс ажиллуулахгүй.
+
+if (process.env.VERCEL !== "1") {
+    await import("./cron.js");
+}
 
 
 // =====================================================
@@ -823,7 +829,16 @@ console.log(
 
 
 // =====================================================
-// START APPLICATION
+// EXPORT EXPRESS APP FOR VERCEL
 // =====================================================
 
-startServer();
+export default app;
+
+
+// =====================================================
+// START APPLICATION LOCALLY ONLY
+// =====================================================
+
+if (process.env.VERCEL !== "1") {
+    startServer();
+}
