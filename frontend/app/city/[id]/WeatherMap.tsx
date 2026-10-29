@@ -20,15 +20,17 @@ import "./tsagagaar.css";
 // Нүүр хуудсанд ашигладаг газрын зургийн component.
 // MongoliaMap.tsx файлыг app/city/ хавтас руу хуулсан (эсвэл доорх замыг
 // нүүр хуудасныхаа хавтас руу засна уу).
-const MongoliaMap = dynamic(() => import("../MongoliaMap"), {
+const MongoliaMap = dynamic(
+  () => import("../../Nuurhuudas/MongoliaMap"),
+  {
     ssr: false,
     loading: () => (
-        <div className="flex h-full w-full items-center justify-center text-sm text-slate-600 dark:text-slate-400">
-            Газрын зураг ачаалж байна...
-        </div>
+      <div className="flex h-full w-full items-center justify-center text-sm text-slate-600 dark:text-slate-400">
+        Газрын зураг ачаалж байна...
+      </div>
     ),
-});
-
+  }
+);
 // =====================================================
 // CONFIG
 // =====================================================
