@@ -30,16 +30,30 @@ export async function getAllAgaarChanar() {
 
         FROM agaar_chanar_stantsuud AS s
 
-        LEFT JOIN agaar_chanar_api AS a
-            ON a.id = (
-                SELECT a2.id
-                FROM agaar_chanar_api AS a2
-                WHERE a2.station_sid = s.sid
-                ORDER BY
-                    a2.hemjsen_ognoo DESC,
-                    a2.id DESC
-                LIMIT 1
-            )
+        LEFT JOIN (
+            SELECT
+                station_sid,
+                id,
+                aqi,
+                angilal,
+                angilal_mn,
+                pm25,
+                pm10,
+                no2,
+                so2,
+                co,
+                o3,
+                eruul_mend_zuvlumj,
+                hemjsen_ognoo,
+                eh_urvalj,
+                ROW_NUMBER() OVER (
+                    PARTITION BY station_sid
+                    ORDER BY hemjsen_ognoo DESC, id DESC
+                ) AS rn
+            FROM agaar_chanar_api
+        ) AS a
+            ON a.station_sid = s.sid
+            AND a.rn = 1
 
         ORDER BY s.sid ASC
     `;
@@ -126,16 +140,31 @@ export async function getLatestAgaarChanarByStation(stantsDugaar) {
 
         FROM agaar_chanar_stantsuud AS s
 
-        LEFT JOIN agaar_chanar_api AS a
-            ON a.id = (
-                SELECT a2.id
-                FROM agaar_chanar_api AS a2
-                WHERE a2.station_sid = s.sid
-                ORDER BY
-                    a2.hemjsen_ognoo DESC,
-                    a2.id DESC
-                LIMIT 1
-            )
+        LEFT JOIN (
+            SELECT
+                station_sid,
+                id,
+                aqi,
+                angilal,
+                angilal_mn,
+                pm25,
+                pm10,
+                no2,
+                so2,
+                co,
+                o3,
+                eruul_mend_zuvlumj,
+                hemjsen_ognoo,
+                eh_urvalj,
+                ROW_NUMBER() OVER (
+                    PARTITION BY station_sid
+                    ORDER BY hemjsen_ognoo DESC, id DESC
+                ) AS rn
+            FROM agaar_chanar_api
+            WHERE station_sid = ${sid}
+        ) AS a
+            ON a.station_sid = s.sid
+            AND a.rn = 1
 
         WHERE s.sid = ${sid}
         LIMIT 1
@@ -164,7 +193,9 @@ function validateDate(value, fieldName) {
     const date = String(value ?? "").trim();
 
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        throw new Error(`${fieldName} огноо YYYY-MM-DD хэлбэртэй байх ёстой.`);
+        throw new Error(
+            `${fieldName} огноо YYYY-MM-DD хэлбэртэй байх ёстой.`
+        );
     }
 
     const parsed = new Date(`${date}T00:00:00Z`);
@@ -188,7 +219,10 @@ export async function compareAgaarChanar({
 }) {
     const stationIds = [
         ...new Set(
-            (Array.isArray(stations) ? stations : String(stations ?? "").split(","))
+            (Array.isArray(stations)
+                ? stations
+                : String(stations ?? "").split(",")
+            )
                 .map((id) => String(id).trim())
                 .filter((id) => /^\d+$/.test(id))
         ),
@@ -214,58 +248,51 @@ export async function compareAgaarChanar({
     const toDate = validateDate(to, "Дуусах");
 
     if (fromDate > toDate) {
-        throw new Error("Эхлэх огноо дуусах огнооноос хойш байж болохгүй.");
+        throw new Error(
+            "Эхлэх огноо дуусах огнооноос хойш байж болохгүй."
+        );
     }
 
-    // Зөвхөн зөвшөөрсөн баганын нэрийг SQL-д оруулна.
-    // Хэрэглэгчийн өгсөн дурын SQL баганын нэрийг ашиглахгүй.
-    const metricColumn = {
-        aqi: prisma.$queryRaw`aqi`,
-        pm25: prisma.$queryRaw`pm25`,
-        pm10: prisma.$queryRaw`pm10`,
-        no2: prisma.$queryRaw`no2`,
-        so2: prisma.$queryRaw`so2`,
-        co: prisma.$queryRaw`co`,
-        o3: prisma.$queryRaw`o3`,
-    };
+    // Зөвшөөрөгдсөн баганын нэр
+    const columnName = ALLOWED_METRICS.includes(metric)
+        ? metric
+        : "aqi";
 
-    // SQL баганын нэрийг зөвшөөрөгдсөн жагсаалтаас сонгоно.
-    const columnName = ALLOWED_METRICS.includes(metric) ? metric : "aqi";
-
+    // Бүлэглэх илэрхийлэл
     const bucketExpression = {
-        hour: prisma.$queryRaw`DATE_FORMAT(a.hemjsen_ognoo, '%Y-%m-%d %H:00:00')`,
-        day: prisma.$queryRaw`DATE_FORMAT(a.hemjsen_ognoo, '%Y-%m-%d')`,
-        month: prisma.$queryRaw`DATE_FORMAT(a.hemjsen_ognoo, '%Y-%m')`,
-        all: prisma.$queryRaw`'Нийт хугацаа'`,
+        hour: "DATE_FORMAT(a.hemjsen_ognoo, '%Y-%m-%d %H:00:00')",
+        day: "DATE_FORMAT(a.hemjsen_ognoo, '%Y-%m-%d')",
+        month: "DATE_FORMAT(a.hemjsen_ognoo, '%Y-%m')",
+        all: "'Нийт хугацаа'",
     };
 
-    // IN жагсаалтыг параметрээр үүсгэж, SQL injection-оос хамгаална.
-    const stationList = prisma.join(stationIds);
+    const bucket = bucketExpression[group];
 
-    // Үзүүлэлтийн нэр зөвшөөрөгдсөн жагсаалтаар хязгаарлагдсан.
-    // Огноо, станцын ID нь параметрээр дамжина.
+    // Станцын ID жагсаалт
+    const placeholders = stationIds.map(() => "?").join(",");
+
     const query = `
         SELECT
             a.station_sid AS station_sid,
-            ${group === "all"
-                ? "'Нийт хугацаа'"
-                : group === "hour"
-                    ? "DATE_FORMAT(a.hemjsen_ognoo, '%Y-%m-%d %H:00:00')"
-                    : group === "month"
-                        ? "DATE_FORMAT(a.hemjsen_ognoo, '%Y-%m')"
-                        : "DATE_FORMAT(a.hemjsen_ognoo, '%Y-%m-%d')"
-            } AS bucket,
+            ${bucket} AS bucket,
+
             AVG(a.${columnName}) AS avg_value,
             MIN(a.${columnName}) AS min_value,
             MAX(a.${columnName}) AS max_value,
             COUNT(a.${columnName}) AS count
+
         FROM agaar_chanar_api AS a
-        WHERE a.station_sid IN (${stationIds.map(() => "?").join(",")})
+
+        WHERE a.station_sid IN (${placeholders})
           AND a.hemjsen_ognoo >= ?
           AND a.hemjsen_ognoo < DATE_ADD(?, INTERVAL 1 DAY)
           AND a.${columnName} IS NOT NULL
+
         GROUP BY a.station_sid, bucket
-        ORDER BY a.station_sid ASC, bucket ASC
+
+        ORDER BY
+            a.station_sid ASC,
+            bucket ASC
     `;
 
     return await prisma.$queryRawUnsafe(
