@@ -801,30 +801,25 @@ console.log(
 
         );
 
+    
     } catch (error) {
 
         console.error("");
+        console.error("==========================================");
+        console.error("❌ SERVER START ERROR");
+        console.error("==========================================");
 
-        console.error(
-            "=========================================="
-        );
+        console.error("Error name:", error.name);
+        console.error("Error message:", error.message);
+        console.error("Error code:", error.code);
+        console.error("Error metadata:", error.meta);
+        console.error("Original cause:", error.cause);
+        console.error("Full error:", error);
 
-        console.error(
-            "❌ SERVER START ERROR"
-        );
-
-        console.error(
-            "=========================================="
-        );
-
-        console.error(error);
-
-        console.error("");
+        console.error("==========================================");
 
         process.exit(1);
-
     }
-
 }
 
 
