@@ -2,6 +2,7 @@ import "dotenv/config";
 
 import express from "express";
 import cors from "cors";
+import { inspect } from "node:util";
 
 import prisma from "./prisma.js";
 import config from "./config.js";
@@ -804,25 +805,23 @@ console.log(
     
     } catch (error) {
 
-        console.error("");
-        console.error("==========================================");
-        console.error("❌ SERVER START ERROR");
-        console.error("==========================================");
+    console.error("");
+    console.error("==========================================");
+    console.error("❌ SERVER START ERROR");
+    console.error("==========================================");
 
-        console.error("Error name:", error.name);
-        console.error("Error message:", error.message);
-        console.error("Error code:", error.code);
-        console.error("Error metadata:", error.meta);
-        console.error("Original cause:", error.cause);
-        console.error("Full error:", error);
+    console.error("FULL ERROR DETAILS:");
+    console.error(inspect(error, {
+        depth: null,
+        colors: false
+    }));
 
-        console.error("==========================================");
+    console.error("==========================================");
 
-        process.exit(1);
-    }
+    process.exit(1);
 }
 
-
+}
 // =====================================================
 // EXPORT EXPRESS APP FOR VERCEL
 // =====================================================
