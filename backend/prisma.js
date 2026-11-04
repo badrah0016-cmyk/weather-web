@@ -11,7 +11,6 @@ const adapter = new PrismaMariaDb({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME || "weather_db",
 
-    // TiDB Cloud TLS холболт
     ssl: process.env.NODE_ENV === "production" ? true : undefined,
 
     connectionLimit: 5,
