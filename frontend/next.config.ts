@@ -10,12 +10,13 @@ const nextConfig: NextConfig = {
 
     // Frontend-ийн API хүсэлтийг backend рүү дамжуулах
     async rewrites() {
-        return [
-            {
-                source: "/backend/:path*",
-                destination: `${process.env.BACKEND_URL || "http://localhost:4000"}/:path*`,
-            },
-        ];
+      return [
+    {
+        source: "/backend/:path*",
+        destination: `${process.env.BACKEND_URL || "http://localhost:4000"}/:path*`,
+    },
+];
+       
     },
 };
 
