@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 import path from "node:path";
 
 const nextConfig: NextConfig = {
-    // Turbopack-ийн үндсэн хавтас
     turbopack: {
         root: path.resolve(process.cwd()),
     },
