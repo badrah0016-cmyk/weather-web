@@ -1824,14 +1824,14 @@ const hourlyUv = hourlyNext24
                         {/* Өдрийн дээд, доод температур */}
                         <div className="np-minmax">
                             <span>
-                                ↑ Дээд{" "}
+                                ↑ ИХ{" "}
                                 <strong className="np-max">
                                     {formatTemp(todayForecast?.temperatur_max_c)}
                                 </strong>
                             </span>
 
                             <span>
-                                ↓ Доод{" "}
+                                ↓ БАГА{" "}
                                 <strong className="np-min">
                                     {formatTemp(todayForecast?.temperatur_min_c)}
                                 </strong>

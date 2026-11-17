@@ -25,12 +25,15 @@ export type Station = {
   stants_dugaar?: number | string | null;
   stantsDugaar?: number | string | null;
   id?: number | string | null;
+
   ner?: string | null;
   ner_en?: string | null;
   aimag?: string | null;
+
   urgurug?: number | string | null;
   urtrag?: number | string | null;
   undur?: number | string | null;
+
   latitude?: number | string | null;
   longitude?: number | string | null;
   lat?: number | string | null;
@@ -40,30 +43,33 @@ export type Station = {
 
 export type AirQualityRow = {
   id?: number | string | null;
+
   station_sid?: number | string | null;
   stationSid?: number | string | null;
   sid?: number | string | null;
   stants_dugaar?: number | string | null;
   stantsDugaar?: number | string | null;
+
   aqi?: number | string | null;
   AQI?: number | string | null;
+
   pm25?: number | string | null;
   pm2_5?: number | string | null;
   "pm2.5"?: number | string | null;
   pm10?: number | string | null;
+
   no2?: number | string | null;
   so2?: number | string | null;
   co?: number | string | null;
   o3?: number | string | null;
-  angilal?: string | null;
-  angilal_mn?: string | null;
-  eruul_mend_zuvlumj?: string | null;
+
   ajiglasan_ognoo?: string | null;
   ognoo?: string | null;
   shinechilsen_ognoo?: string | null;
   hemjsen_ognoo?: string | null;
   measured_at?: string | null;
   measuredAt?: string | null;
+
   [key: string]: unknown;
 };
 
@@ -82,30 +88,26 @@ type AqiCategory = {
 type StationAirStatus = {
   value: number | null;
   category: AqiCategory;
-  source: "AQI" | "MNS_ESTIMATE" | "NONE";
-  displayName: string;
+  source: "CALCULATED" | "NONE";
+};
+
+type Breakpoint = {
+  low: number;
+  high: number;
+  indexLow: number;
+  indexHigh: number;
 };
 
 // =====================================================
-// МОНГОЛЫН ЖИШИГ ХЯЗГААР
-//
-// Эдгээр нь 24 цагийн жишиг концентраци.
-// Өгөгдлийн дундажлах хугацаа болон нэгжийг
-// API-ийн баримттай тулгаж баталгаажуулна.
-// =====================================================
-
-const PM25_STANDARD_24H = 50;
-const PM10_STANDARD_24H = 100;
-
-// =====================================================
-// ID НЭГДСЭН ХЭЛБЭРТ ОРУУЛАХ
+// ID
 // =====================================================
 
 function normalizeId(value: unknown): string | null {
   if (value === null || value === undefined) return null;
 
   const id = String(value).trim();
-  return id ? id : null;
+
+  return id || null;
 }
 
 function getStationId(station: Station): string | null {
@@ -139,19 +141,20 @@ function parseCoordinate(value: unknown): number | null {
   }
 
   const number = Number(value);
+
   return Number.isFinite(number) ? number : null;
 }
 
 function getCoordinates(station: Station) {
   const lat = parseCoordinate(
-    station.urgurug ?? station.latitude ?? station.lat,
+    station.urgurug ?? station.latitude ?? station.lat
   );
 
   const lng = parseCoordinate(
     station.urtrag ??
       station.longitude ??
       station.lng ??
-      station.lon,
+      station.lon
   );
 
   if (
@@ -173,19 +176,14 @@ function getCoordinates(station: Station) {
 // =====================================================
 
 function parseMeasurementDate(value: unknown): number {
-  if (typeof value !== "string" && !(value instanceof Date)) {
-    return 0;
-  }
-
   if (!value) return 0;
 
   const raw = String(value).trim();
   let normalized = raw;
 
-  // MySQL-ийн цагийн бүсгүй огноог Монголын UTC+08
-  // цаг гэж үзнэ.
+  // MySQL datetime: 2026-11-17 14:30:00
   const mysqlMatch = raw.match(
-    /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?)$/,
+    /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?)$/
   );
 
   if (mysqlMatch) {
@@ -198,6 +196,7 @@ function parseMeasurementDate(value: unknown): number {
   }
 
   const timestamp = new Date(normalized).getTime();
+
   return Number.isFinite(timestamp) ? timestamp : 0;
 }
 
@@ -213,6 +212,7 @@ function getDateValue(row: AirQualityRow): number {
 
   for (const value of values) {
     const timestamp = parseMeasurementDate(value);
+
     if (timestamp > 0) return timestamp;
   }
 
@@ -220,7 +220,7 @@ function getDateValue(row: AirQualityRow): number {
 }
 
 function getDateLabel(row?: AirQualityRow): string {
-  if (!row) return "Мэдээлэл алга";
+  if (!row) return "Хэмжилтийн мэдээлэл алга";
 
   const value =
     row.hemjsen_ognoo ??
@@ -248,181 +248,274 @@ function getDateLabel(row?: AirQualityRow): string {
 }
 
 // =====================================================
-// ТООН УТГА
+// ӨГӨГДЛИЙН ТАЛБАР ХАЙХ
 // =====================================================
 
-function getNumber(
+function normalizeKey(key: string): string {
+  return key.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function findRowValue(
   row: AirQualityRow | undefined,
-  keys: string[],
-): number | null {
+  aliases: string[]
+): unknown {
   if (!row) return null;
 
-  for (const key of keys) {
-    const value = row[key];
+  const normalizedAliases = aliases.map(normalizeKey);
 
+  for (const [key, value] of Object.entries(row)) {
     if (value === null || value === undefined || value === "") {
       continue;
     }
 
-    const number =
-      typeof value === "number"
-        ? value
-        : Number(String(value).trim().replace(",", "."));
-
-    if (Number.isFinite(number)) return number;
+    if (normalizedAliases.includes(normalizeKey(key))) {
+      return value;
+    }
   }
 
   return null;
 }
 
-function getValidMeasurement(
-  row: AirQualityRow | undefined,
-  keys: string[],
-): number | null {
-  const value = getNumber(row, keys);
+function toNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
 
-  if (value === null || value < 0) return null;
+  const number =
+    typeof value === "number"
+      ? value
+      : Number(String(value).trim().replace(",", "."));
 
-  return value;
+  if (!Number.isFinite(number) || number < 0) {
+    return null;
+  }
+
+  return number;
 }
 
 // =====================================================
-// МОНГОЛЫН ЖИШИГТ ХАРЬЦУУЛСАН ТҮР ИНДЕКС
-//
-// Харьцуулсан үзүүлэлт =
-// хэмжсэн агууламж / жишиг агууламж * 100
-//
-// PM2.5 ба PM10-аас гарсан үзүүлэлтийн
-// хамгийн ихийг харуулна.
+// PM2.5 / PM10 УТГАА АВАХ
 // =====================================================
 
-function calculateMongolianEstimate(
-  row: AirQualityRow,
-): number | null {
-  const pm25 = getValidMeasurement(row, ["pm25", "pm2_5", "pm2.5"]);
-  const pm10 = getValidMeasurement(row, ["pm10"]);
+function getPM25(row?: AirQualityRow): number | null {
+  return toNumber(
+    findRowValue(row, [
+      "pm25",
+      "pm2_5",
+      "pm2.5",
+      "pm_25",
+      "pm25_value",
+    ])
+  );
+}
 
-  const indices: number[] = [];
-
-  if (pm25 !== null) {
-    indices.push((pm25 / PM25_STANDARD_24H) * 100);
-  }
-
-  if (pm10 !== null) {
-    indices.push((pm10 / PM10_STANDARD_24H) * 100);
-  }
-
-  if (indices.length === 0) return null;
-
-  return Math.round(Math.max(...indices));
+function getPM10(row?: AirQualityRow): number | null {
+  return toNumber(
+    findRowValue(row, [
+      "pm10",
+      "pm10_value",
+    ])
+  );
 }
 
 // =====================================================
-// ӨНГӨ БА АНГИЛАЛ
-//
-// Энэ нь газрын зургийн дүрслэлийн шатлал.
-// Албан ёсны AQI ангилал гэж ойлгож болохгүй.
+// AQI АНГИЛАЛ
+// ӨМНӨХ CHANARPAGE-ТЭЙ ИЖИЛ
 // =====================================================
 
 function getCategory(value: number | null): AqiCategory {
-  if (value === null || !Number.isFinite(value) || value < 0) {
+  if (
+    value === null ||
+    !Number.isFinite(value) ||
+    value < 0
+  ) {
     return {
       label: "Хэмжилт тодорхойгүй",
       color: "#64748b",
     };
   }
 
+  if (value <= 50) {
+    return {
+      label: "Цэвэр",
+      color: "#16e900",
+    };
+  }
+
   if (value <= 100) {
-    return { label: "Жишиг хязгаарт", color: "#16a34a" };
+    return {
+      label: "Хэвийн",
+      color: "#fff000",
+    };
   }
 
   if (value <= 200) {
-    return { label: "Жишгээс өндөр", color: "#eab308" };
+    return {
+      label: "Бага бохирдолтой",
+      color: "#ff9200",
+    };
   }
 
   if (value <= 300) {
-    return { label: "Өндөр", color: "#f97316" };
+    return {
+      label: "Бохирдолтой",
+      color: "#ff1010",
+    };
   }
 
   if (value <= 400) {
-    return { label: "Маш өндөр", color: "#dc2626" };
+    return {
+      label: "Их бохирдолтой",
+      color: "#963c9f",
+    };
   }
 
-  if (value <= 500) {
-    return { label: "Ноцтой өндөр", color: "#9333ea" };
-  }
-
-  return { label: "Онцгой өндөр", color: "#7f1d1d" };
+  return {
+    label: "Маш их бохирдолтой",
+    color: "#800020",
+  };
 }
 
 // =====================================================
-// СТАНЦЫН ТӨЛӨВ
+// AQI BREAKPOINT
+// =====================================================
+
+const PM25_BREAKPOINTS: Breakpoint[] = [
+  { low: 0, high: 9.0, indexLow: 0, indexHigh: 50 },
+  { low: 9.1, high: 35.4, indexLow: 51, indexHigh: 100 },
+  { low: 35.5, high: 55.4, indexLow: 101, indexHigh: 150 },
+  { low: 55.5, high: 125.4, indexLow: 151, indexHigh: 200 },
+  { low: 125.5, high: 225.4, indexLow: 201, indexHigh: 300 },
+  { low: 225.5, high: 325.4, indexLow: 301, indexHigh: 500 },
+];
+
+const PM10_BREAKPOINTS: Breakpoint[] = [
+  { low: 0, high: 54, indexLow: 0, indexHigh: 50 },
+  { low: 55, high: 154, indexLow: 51, indexHigh: 100 },
+  { low: 155, high: 254, indexLow: 101, indexHigh: 150 },
+  { low: 255, high: 354, indexLow: 151, indexHigh: 200 },
+  { low: 355, high: 424, indexLow: 201, indexHigh: 300 },
+  { low: 425, high: 604, indexLow: 301, indexHigh: 500 },
+];
+
+function calculateSubIndex(
+  concentration: number | null,
+  breakpoints: Breakpoint[],
+  precision: number
+): number | null {
+  if (concentration === null || concentration < 0) {
+    return null;
+  }
+
+  const factor = Math.pow(10, precision);
+
+  const rounded =
+    Math.floor(concentration * factor) / factor;
+
+  const breakpoint = breakpoints.find(
+    (item) =>
+      rounded >= item.low &&
+      rounded <= item.high
+  );
+
+  if (!breakpoint) {
+    if (rounded > breakpoints[breakpoints.length - 1].high) {
+      return 500;
+    }
+
+    return null;
+  }
+
+  const index =
+    ((breakpoint.indexHigh - breakpoint.indexLow) /
+      (breakpoint.high - breakpoint.low)) *
+      (rounded - breakpoint.low) +
+    breakpoint.indexLow;
+
+  return Math.round(index);
+}
+
+// =====================================================
+// AQI ӨӨРӨӨ ТООЦОХ
+// =====================================================
+
+function calculateAQI(
+  row?: AirQualityRow
+): number | null {
+  if (!row) return null;
+
+  const pm25 = getPM25(row);
+  const pm10 = getPM10(row);
+
+  const pm25Index = calculateSubIndex(
+    pm25,
+    PM25_BREAKPOINTS,
+    1
+  );
+
+  const pm10Index = calculateSubIndex(
+    pm10,
+    PM10_BREAKPOINTS,
+    0
+  );
+
+  const indexes = [pm25Index, pm10Index].filter(
+    (value): value is number => value !== null
+  );
+
+  if (indexes.length === 0) return null;
+
+  return Math.max(...indexes);
+}
+
+// =====================================================
+// СТАНЦЫН AQI
 // =====================================================
 
 function getStationAirStatus(
-  row?: AirQualityRow,
+  row?: AirQualityRow
 ): StationAirStatus {
-  const unknown: StationAirStatus = {
-    value: null,
-    category: getCategory(null),
-    source: "NONE",
-    displayName: "Индекс тодорхойгүй",
+  if (!row) {
+    return {
+      value: null,
+      category: getCategory(null),
+      source: "NONE",
+    };
+  }
+
+  const calculatedAqi = calculateAQI(row);
+
+  if (calculatedAqi === null) {
+    return {
+      value: null,
+      category: getCategory(null),
+      source: "NONE",
+    };
+  }
+
+  return {
+    value: calculatedAqi,
+    category: getCategory(calculatedAqi),
+    source: "CALCULATED",
   };
-
-  if (!row) return unknown;
-
-  // API-ийн AQI 0-ээс их байвал API утгыг ашиглана.
-  const apiAqi = getNumber(row, ["aqi", "AQI"]);
-
-  if (apiAqi !== null && apiAqi > 0) {
-    return {
-      value: Math.round(apiAqi),
-      category: getCategory(apiAqi),
-      source: "AQI",
-      displayName: "API AQI",
-    };
-  }
-
-  // AQI байхгүй эсвэл 0 үед жишиг хязгаарт харьцуулна.
-  const estimate = calculateMongolianEstimate(row);
-
-  if (estimate !== null) {
-    return {
-      value: estimate,
-      category: getCategory(estimate),
-      source: "MNS_ESTIMATE",
-      displayName: "Жишигтэй харьцуулсан үзүүлэлт",
-    };
-  }
-
-  return unknown;
 }
 
 // =====================================================
 // УТГА ХАРУУЛАХ
 // =====================================================
 
-function formatValue(value: number | null, unit = ""): string {
-  if (value === null || !Number.isFinite(value)) return "—";
+function formatValue(value: number | null): string {
+  if (value === null || !Number.isFinite(value)) {
+    return "—";
+  }
 
-  const formatted = new Intl.NumberFormat("mn-MN", {
-    maximumFractionDigits: 2,
+  return new Intl.NumberFormat("mn-MN", {
+    maximumFractionDigits: 0,
   }).format(value);
-
-  return unit ? `${formatted} ${unit}` : formatted;
-}
-
-function getStatusValue(status: StationAirStatus): string {
-  if (status.value === null) return "—";
-
-  return formatValue(
-    status.value,
-    status.source === "MNS_ESTIMATE" ? "%" : "",
-  );
 }
 
 // =====================================================
-// МОНГОЛЫН ХИЛИЙН GEOJSON
+// МОНГОЛЫН ХИЛ
 // =====================================================
 
 function MongoliaBounds({
@@ -483,17 +576,55 @@ function SelectedStationView({
     if (!station) return;
 
     const coordinates = getCoordinates(station);
+
     if (!coordinates) return;
 
     map.flyTo(
       [coordinates.lat, coordinates.lng],
       Math.max(map.getZoom(), 6),
-      { duration: 0.45 },
+      { duration: 0.6 }
     );
   }, [station, map]);
 
   return null;
 }
+
+// =====================================================
+// AQI ӨНГӨНИЙ ТАЙЛБАР
+// =====================================================
+
+const AQI_LEGEND = [
+  {
+    label: "Цэвэр",
+    range: "0–50",
+    color: "#16e900",
+  },
+  {
+    label: "Хэвийн",
+    range: "51–100",
+    color: "#fff000",
+  },
+  {
+    label: "Бага бохирдолтой",
+    range: "101–200",
+    color: "#ff9200",
+  },
+  {
+    label: "Бохирдолтой",
+    range: "201–300",
+    color: "#ff1010",
+  },
+  {
+    label: "Их бохирдолтой",
+    range: "301–400",
+    color: "#963c9f",
+  },
+  {
+    label: "Маш их бохирдолтой",
+    range: "401–500",
+    color: "#800020",
+  },
+];
 
 // =====================================================
 // ҮНДСЭН ГАЗРЫН ЗУРАГ
@@ -505,7 +636,9 @@ export default function AgaarchanarMap({
   selectedStation,
   onSelectStation,
 }: Props) {
-  const [geoJson, setGeoJson] = useState<GeoJsonObject | null>(null);
+  const [geoJson, setGeoJson] =
+    useState<GeoJsonObject | null>(null);
+
   const [geoJsonError, setGeoJsonError] = useState("");
 
   // Монголын хил ачаалах
@@ -530,10 +663,13 @@ export default function AgaarchanarMap({
       } catch (error) {
         if (controller.signal.aborted) return;
 
-        console.error("Монголын хил ачааллах алдаа:", error);
+        console.error(
+          "Монголын хил ачааллах алдаа:",
+          error
+        );
 
         setGeoJsonError(
-          "Монголын хил ачаалсангүй. public/mongolia.geojson файлыг шалгана уу.",
+          "Монголын хил ачаалсангүй. public/mongolia.geojson файлыг шалгана уу."
         );
       }
     }
@@ -543,17 +679,21 @@ export default function AgaarchanarMap({
     return () => controller.abort();
   }, []);
 
-  // Станц тус бүрийн хамгийн сүүлийн хэмжилт
+  // Станц бүрийн хамгийн сүүлийн хэмжилт
   const airByStation = useMemo(() => {
     const latest = new Map<string, AirQualityRow>();
 
     for (const row of airRows) {
       const id = getRowStationId(row);
+
       if (id === null) continue;
 
       const previous = latest.get(id);
 
-      if (!previous || getDateValue(row) >= getDateValue(previous)) {
+      if (
+        !previous ||
+        getDateValue(row) >= getDateValue(previous)
+      ) {
         latest.set(id, row);
       }
     }
@@ -561,15 +701,15 @@ export default function AgaarchanarMap({
     return latest;
   }, [airRows]);
 
-  // Зөв координаттай станцууд
+  // Координаттай станцууд
   const validStations = useMemo(
     () =>
       stations.filter(
         (station) =>
           getStationId(station) !== null &&
-          getCoordinates(station) !== null,
+          getCoordinates(station) !== null
       ),
-    [stations],
+    [stations]
   );
 
   // Сонгосон станц
@@ -577,35 +717,64 @@ export default function AgaarchanarMap({
     () =>
       validStations.find(
         (station) =>
-          getStationId(station) === normalizeId(selectedStation),
+          getStationId(station) === normalizeId(selectedStation)
       ) ?? null,
-    [validStations, selectedStation],
+    [validStations, selectedStation]
   );
 
-  // Цэг дээр дарахад parent буюу үндсэн хуудсанд ID дамжуулна.
- function handleStationClick(id: string | number) {
-    const normalizedId = normalizeId(id);
+  // Сонгосон станцын хэмжилт
+  const selectedRow = useMemo(() => {
+    const id = normalizeId(selectedStation);
 
-    console.log("1. Дарсан ID:", id);
-    console.log("2. Хэвийн болгосон ID:", normalizedId);
+    if (!id) return undefined;
 
-    if (normalizedId === null) {
-        console.error("Станцын ID буруу байна:", id);
-        return;
-    }
+    return airByStation.get(id);
+  }, [airByStation, selectedStation]);
 
-    console.log("3. Нүүр хуудас руу дамжуулж байна:", normalizedId);
-    onSelectStation(normalizedId);
-}
+  const selectedStatus = useMemo(
+    () => getStationAirStatus(selectedRow),
+    [selectedRow]
+  );
+
+  // Станц сонгох
+  function handleStationClick(id: string) {
+    if (!id) return;
+
+    onSelectStation(id);
+  }
+
+  // AQI шалгах
+  useEffect(() => {
+    console.table(
+      Array.from(airByStation.entries()).map(([id, row]) => {
+        const status = getStationAirStatus(row);
+
+        return {
+          stationId: id,
+          calculatedAQI: status.value,
+          category: status.category.label,
+          color: status.category.color,
+          PM25: getPM25(row),
+          PM10: getPM10(row),
+          measuredAt: getDateLabel(row),
+        };
+      })
+    );
+  }, [airByStation]);
 
   return (
     <div className="aq-map-container">
       <div className="aq-map-topline">
         <span className="aq-map-status-dot" />
+
         <span>Монгол Улс</span>
+
         <span className="aq-map-topline-separator">·</span>
+
         <span>{validStations.length} станц</span>
+
         <span className="aq-map-topline-separator">·</span>
+
         <span>{airRows.length} хэмжилтийн мөр</span>
       </div>
 
@@ -642,11 +811,13 @@ export default function AgaarchanarMap({
                 fillOpacity: 0.08,
               }}
             />
+
             <MongoliaBounds geoJson={geoJson} />
           </>
         )}
 
         <MapResizeHandler />
+
         <SelectedStationView station={selectedStationData} />
 
         {validStations.map((station) => {
@@ -658,14 +829,6 @@ export default function AgaarchanarMap({
           const row = airByStation.get(id);
           const status = getStationAirStatus(row);
 
-          const pm25 = getValidMeasurement(row, [
-            "pm25",
-            "pm2_5",
-            "pm2.5",
-          ]);
-
-          const pm10 = getValidMeasurement(row, ["pm10"]);
-
           const isSelected =
             selectedStation !== null &&
             id === normalizeId(selectedStation);
@@ -673,11 +836,14 @@ export default function AgaarchanarMap({
           const stationName =
             station.ner || station.ner_en || `Станц ${id}`;
 
+          const aimagName =
+            station.aimag || "Аймаг тодорхойгүй";
+
           return (
             <CircleMarker
               key={id}
               center={[coordinates.lat, coordinates.lng]}
-              radius={isSelected ? 10 : 7}
+              radius={isSelected ? 11 : 7}
               pathOptions={{
                 color: isSelected ? "#0f172a" : "#ffffff",
                 weight: isSelected ? 3 : 2,
@@ -688,25 +854,24 @@ export default function AgaarchanarMap({
                 click: () => handleStationClick(id),
               }}
             >
-              <Tooltip direction="top" offset={[0, -8]}>
+              <Tooltip
+                direction="top"
+                offset={[0, -8]}
+                opacity={1}
+              >
                 <div className="aq-map-tooltip">
                   <strong>{stationName}</strong>
 
-                  <div>
-                    {status.source === "AQI"
-                      ? "API-аас ирсэн AQI"
-                      : status.source === "MNS_ESTIMATE"
-                        ? "Жишигтэй харьцуулсан үзүүлэлт"
-                        : "Индекс"}
-                    :{" "}
-                    <strong>{getStatusValue(status)}</strong>
-                  </div>
+                  <div>{aimagName}</div>
 
-                  {status.source === "MNS_ESTIMATE" && (
-                    <small>
-                      Албан ёсны AQI гэж баталгаажаагүй
-                    </small>
-                  )}
+                  <div className="aq-map-tooltip-aqi">
+                    Тооцоолсон AQI:{" "}
+                    <strong>
+                      {status.value === null
+                        ? "Мэдээлэл алга"
+                        : formatValue(status.value)}
+                    </strong>
+                  </div>
 
                   <div
                     style={{
@@ -717,10 +882,15 @@ export default function AgaarchanarMap({
                     {status.category.label}
                   </div>
 
-                  <div>PM2.5: {formatValue(pm25, "µg/m³")}</div>
-                  <div>PM10: {formatValue(pm10, "µg/m³")}</div>
+                  <small>
+                    {status.source === "CALCULATED"
+                      ? "PM2.5 болон PM10-оор тооцоолсон"
+                      : "AQI тооцоолох хэмжилт алга"}
+                  </small>
 
-                  <small>{getDateLabel(row)}</small>
+                  <small>
+                    Хэмжсэн огноо: {getDateLabel(row)}
+                  </small>
 
                   <small>Станцын дугаар: {id}</small>
                 </div>
@@ -736,42 +906,63 @@ export default function AgaarchanarMap({
         </p>
       )}
 
+      {/* СОНГОСОН СТАНЦЫН МЭДЭЭЛЭЛ */}
       {selectedStationData && (
         <div className="aq-map-selected-summary">
-          <strong>
-            {selectedStationData.ner ?? `Станц ${getStationId(selectedStationData)}`}
-          </strong>
-          <span>
-            Сонгосон станцын мэдээлэл үндсэн хэсэгт шинэчлэгдэнэ.
-          </span>
+          <div className="aq-map-selected-heading">
+            <div>
+              <strong>
+                {selectedStationData.ner ??
+                  `Станц ${getStationId(selectedStationData)}`}
+              </strong>
+
+              <span>
+                {selectedStationData.aimag ??
+                  "Аймаг тодорхойгүй"}
+              </span>
+            </div>
+
+            <div
+              className="aq-map-selected-status"
+              style={{
+                color: selectedStatus.category.color,
+              }}
+            >
+              <strong>
+                {selectedStatus.value === null
+                  ? "—"
+                  : formatValue(selectedStatus.value)}
+              </strong>
+
+              <span>{selectedStatus.category.label}</span>
+            </div>
+          </div>
+
+          <small>
+            Хэмжсэн огноо: {getDateLabel(selectedRow)}
+          </small>
+
+          <small>
+            {selectedStatus.source === "CALCULATED"
+              ? "AQI: PM2.5 болон PM10 хэмжилтээр өөрөө тооцоолсон"
+              : "AQI тооцоолох хэмжилтийн мэдээлэл алга"}
+          </small>
         </div>
       )}
 
+      {/* ӨНГӨНИЙ ТАЙЛБАР */}
       <div className="aq-map-legend">
-        <span>
-          <i style={{ background: "#16a34a" }} />
-          Жишиг хязгаарт
-        </span>
-        <span>
-          <i style={{ background: "#eab308" }} />
-          Жишгээс өндөр
-        </span>
-        <span>
-          <i style={{ background: "#f97316" }} />
-          Өндөр
-        </span>
-        <span>
-          <i style={{ background: "#dc2626" }} />
-          Маш өндөр
-        </span>
-        <span>
-          <i style={{ background: "#9333ea" }} />
-          Ноцтой өндөр
-        </span>
-        <span>
-          <i style={{ background: "#7f1d1d" }} />
-          Онцгой өндөр
-        </span>
+        {AQI_LEGEND.map((item) => (
+          <span key={item.range}>
+            <i
+              style={{
+                background: item.color,
+              }}
+            />
+            {item.label} ({item.range})
+          </span>
+        ))}
+
         <span>
           <i style={{ background: "#64748b" }} />
           Хэмжилт тодорхойгүй

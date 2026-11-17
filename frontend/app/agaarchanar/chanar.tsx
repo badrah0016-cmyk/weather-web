@@ -48,13 +48,11 @@ function toNumber(value: unknown): number | null {
   }
 
   const number = Number(value);
+
   return Number.isFinite(number) ? number : null;
 }
 
-function formatNumber(
-  value: unknown,
-  unit = "",
-): string {
+function formatNumber(value: unknown, unit = ""): string {
   const number = toNumber(value);
 
   if (number === null) return "Мэдээлэлгүй";
@@ -64,68 +62,83 @@ function formatNumber(
   })}${unit}`;
 }
 
+// AQI ангилал болон өнгө
 function getAQIInfo(value: unknown): AQIInfo {
   const aqi = toNumber(value);
 
-  if (aqi === null) {
+  if (aqi === null || aqi < 0) {
     return {
       label: "Мэдээлэлгүй",
       color: "#64748b",
-      description: "Агаарын чанарын индексийн мэдээлэл алга.",
-      advice: "Дараа дахин шалгана уу.",
+      description:
+        "Агаарын чанарын индексийн мэдээлэл алга.",
+      advice:
+        "Хэмжилтийн мэдээлэл шинэчлэгдэхийг хүлээнэ үү.",
     };
   }
 
   if (aqi <= 50) {
     return {
-      label: "Сайн",
-      color: "#16a34a",
-      description: "Агаарын чанар хэвийн, эрүүл мэндэд үзүүлэх эрсдэл бага.",
-      advice: "Гадаа чөлөөтэй үйл ажиллагаа явуулж болно.",
+      label: "Цэвэр",
+      color: "#16e900",
+      description:
+        "Агаарын чанар сайн, эрүүл мэндэд сөрөг нөлөө бага.",
+      advice:
+        "Гадаа чөлөөтэй үйл ажиллагаа явуулж болно.",
     };
   }
 
   if (aqi <= 100) {
     return {
-      label: "Дунд зэрэг",
-      color: "#ca8a04",
-      description: "Мэдрэмтгий хүмүүс бага зэрэг болгоомжлох хэрэгтэй.",
-      advice: "Мэдрэмтгий бол гадаах ачааллаа багасгаарай.",
-    };
-  }
-
-  if (aqi <= 150) {
-    return {
-      label: "Мэдрэмтгий бүлэгт муу",
-      color: "#ea580c",
-      description: "Мэдрэмтгий бүлгийн хүмүүст сөрөг нөлөө үзүүлж болзошгүй.",
-      advice: "Хүүхэд болон мэдрэмтгий хүмүүс гадаах ачааллаа хязгаарлаарай.",
+      label: "Хэвийн",
+      color: "#fff000",
+      description:
+        "Агаарын чанар хэвийн түвшинд байна.",
+      advice:
+        "Өдөр тутмын үйл ажиллагаагаа хэвийн үргэлжлүүлж болно.",
     };
   }
 
   if (aqi <= 200) {
     return {
-      label: "Муу",
-      color: "#dc2626",
-      description: "Эрүүл мэндэд сөрөг нөлөө үзүүлж болзошгүй.",
-      advice: "Гадаа удаан байх, эрчимтэй дасгал хийхээс зайлсхийгээрэй.",
+      label: "Бага бохирдолтой",
+      color: "#ff9200",
+      description:
+        "Агаарын бохирдол нэмэгдсэн байна.",
+      advice:
+        "Мэдрэмтгий бүлгийн хүмүүс гадаах идэвхтэй үйл ажиллагаагаа багасгаарай.",
     };
   }
 
   if (aqi <= 300) {
     return {
-      label: "Маш муу",
-      color: "#9333ea",
-      description: "Эрүүл мэндэд ноцтой нөлөө үзүүлж болзошгүй.",
-      advice: "Гадаах үйл ажиллагааг аль болох багасгаарай.",
+      label: "Бохирдолтой",
+      color: "#ff1010",
+      description:
+        "Агаарын бохирдол өндөр түвшинд байна.",
+      advice:
+        "Гадаах идэвхтэй үйл ажиллагааг багасгаж, шаардлагагүй бол гадаа удаан байхаас зайлсхий.",
+    };
+  }
+
+  if (aqi <= 400) {
+    return {
+      label: "Их бохирдолтой",
+      color: "#963c9f",
+      description:
+        "Агаарын бохирдол маш өндөр байна.",
+      advice:
+        "Гадаа байх хугацааг хязгаарлаж, цонхоо хааж, албан ёсны зөвлөмжийг дагаарай.",
     };
   }
 
   return {
-    label: "Аюултай",
-    color: "#7f1d1d",
-    description: "Агаарын бохирдлын түвшин маш өндөр байна.",
-    advice: "Гадаах үйл ажиллагааг зогсоож, албан ёсны зөвлөмжийг дагаарай.",
+    label: "Маш их бохирдолтой",
+    color: "#800020",
+    description:
+      "Агаарын бохирдол маш өндөр түвшинд хүрсэн байна.",
+    advice:
+      "Гадаах үйл ажиллагааг аль болох хязгаарлаж, албан ёсны эрүүл мэндийн зөвлөмжийг дагаарай.",
   };
 }
 
@@ -183,6 +196,21 @@ function extractAir(data: unknown): AirQuality | null {
   return null;
 }
 
+// Огноо форматлах
+function formatObservedDate(value: string | null | undefined): string {
+  if (!value) return "Мэдээлэлгүй";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Мэдээлэлгүй";
+  }
+
+  return date.toLocaleString("mn-MN", {
+    timeZone: "Asia/Ulaanbaatar",
+  });
+}
+
 const pollutants = [
   {
     key: "pm25",
@@ -228,6 +256,45 @@ const pollutants = [
   },
 ] as const;
 
+const aqiGuide = [
+  {
+    range: "0–50",
+    label: "Цэвэр",
+    color: "#16e900",
+    text: "Агаарын чанар сайн, эрүүл мэндэд сөрөг нөлөөгүй.",
+  },
+  {
+    range: "51–100",
+    label: "Хэвийн",
+    color: "#fff000",
+    text: "Агаарын чанар хэвийн түвшинд байна.",
+  },
+  {
+    range: "101–200",
+    label: "Бага бохирдолтой",
+    color: "#ff9200",
+    text: "Мэдрэмтгий бүлгийн хүмүүс болгоомжтой байна.",
+  },
+  {
+    range: "201–300",
+    label: "Бохирдолтой",
+    color: "#ff1010",
+    text: "Гадаа удаан хугацаагаар байхыг багасгана.",
+  },
+  {
+    range: "301–400",
+    label: "Их бохирдолтой",
+    color: "#963c9f",
+    text: "Эрүүл мэндэд сөрөг нөлөө үзүүлж болзошгүй.",
+  },
+  {
+    range: "401–500",
+    label: "Маш их бохирдолтой",
+    color: "#800020",
+    text: "Гадаах үйл ажиллагааг хязгаарлаж, эрүүл мэндээ хамгаална.",
+  },
+] as const;
+
 export default function ChanarPage() {
   const [stations, setStations] = useState<Station[]>([]);
   const [selectedStation, setSelectedStation] = useState("");
@@ -236,12 +303,16 @@ export default function ChanarPage() {
   const [loadingAir, setLoadingAir] = useState(false);
   const [error, setError] = useState("");
 
+  // Станцын мэдээлэл татах
   const loadStations = useCallback(async () => {
     setLoadingStations(true);
     setError("");
 
     try {
-      const result = await fetchJSON(`${API_BASE_URL}/stantsuud`);
+      const result = await fetchJSON(
+        `${API_BASE_URL}/stantsuud`
+      );
+
       const rows = extractRows<Station>(result);
 
       setStations(rows);
@@ -252,18 +323,18 @@ export default function ChanarPage() {
             current &&
             rows.some(
               (station) =>
-                String(station.stants_dugaar) === current,
+                String(station.stants_dugaar) === current
             )
           ) {
             return current;
           }
 
           const ulaanbaatar = rows.find((station) =>
-            /улаанбаатар/i.test(station.ner),
+            /улаанбаатар/i.test(station.ner)
           );
 
           return String(
-            (ulaanbaatar ?? rows[0]).stants_dugaar,
+            (ulaanbaatar ?? rows[0]).stants_dugaar
           );
         });
       } else {
@@ -271,50 +342,58 @@ export default function ChanarPage() {
       }
     } catch (err) {
       console.error("Станц татахад алдаа:", err);
+
       setError(
-        "Станцын мэдээлэл татаж чадсангүй. Backend болон API хаягаа шалгана уу.",
+        "Станцын мэдээлэл татаж чадсангүй. Backend болон API хаягаа шалгана уу."
       );
     } finally {
       setLoadingStations(false);
     }
   }, []);
 
+  // Сонгосон станцын агаарын чанар татах
+  const loadAirQuality = useCallback(
+    async (stationId: string) => {
+      if (!stationId) {
+        setAir(null);
+        return;
+      }
 
-const loadAirQuality = useCallback(async (stationId: string) => {
-  if (!stationId) {
-    setAir(null);
-    return;
-  }
+      setLoadingAir(true);
+      setError("");
 
-  setLoadingAir(true);
-  setError("");
+      try {
+        const result = await fetchJSON(
+          `${API_BASE_URL}/agaar_chanar/${encodeURIComponent(
+            stationId
+          )}`
+        );
 
-  try {
-    // Сонгосон станцын агаарын чанарын мэдээллийг татна.
-    const result = await fetchJSON(
-      `${API_BASE_URL}/agaar_chanar/${encodeURIComponent(stationId)}`
-    );
+        const airData = extractAir(result);
 
-    const airData = extractAir(result);
+        if (!airData) {
+          setAir(null);
+          setError(
+            "Сонгосон станцын агаарын чанарын мэдээлэл олдсонгүй."
+          );
+          return;
+        }
 
-    if (!airData) {
-      setAir(null);
-      setError("Сонгосон станцын агаарын чанарын мэдээлэл олдсонгүй.");
-      return;
-    }
+        setAir(airData);
+      } catch (err) {
+        console.error("Агаарын чанар татахад алдаа:", err);
 
-    setAir(airData);
-  } catch (err) {
-    console.error("Агаарын чанар татахад алдаа:", err);
-    setAir(null);
-    setError(
-      "Агаарын чанарын мэдээлэл татаж чадсангүй. Backend route болон өгөгдлийн сангийн холболтоо шалгана уу."
-    );
-  } finally {
-    setLoadingAir(false);
-  }
-}, []);
+        setAir(null);
 
+        setError(
+          "Агаарын чанарын мэдээлэл татаж чадсангүй. Backend route болон өгөгдлийн сангийн холболтоо шалгана уу."
+        );
+      } finally {
+        setLoadingAir(false);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     void loadStations();
@@ -328,20 +407,21 @@ const loadAirQuality = useCallback(async (stationId: string) => {
 
   const selectedStationInfo = stations.find(
     (station) =>
-      String(station.stants_dugaar) === selectedStation,
+      String(station.stants_dugaar) === selectedStation
   );
 
   const aqiInfo = getAQIInfo(air?.aqi);
 
-  const observedDate = air?.ajiglasan_ognoo
-    ? new Date(air.ajiglasan_ognoo).toLocaleString("mn-MN")
-    : "Мэдээлэлгүй";
+  const observedDate = formatObservedDate(
+    air?.ajiglasan_ognoo
+  );
 
   return (
     <div className="chanar-page">
       <AgaarHeader />
 
       <main className="chanar-main">
+        {/* Нүүр хэсэг */}
         <section className="chanar-hero" id="overview">
           <div className="chanar-hero-content">
             <span className="chanar-eyebrow">
@@ -366,17 +446,23 @@ const loadAirQuality = useCallback(async (stationId: string) => {
               id="chanar-station"
               className="chanar-station-select"
               value={selectedStation}
-              disabled={loadingStations || stations.length === 0}
+              disabled={
+                loadingStations || stations.length === 0
+              }
               onChange={(event) =>
                 setSelectedStation(event.target.value)
               }
             >
               {loadingStations && (
-                <option value="">Станц ачаалж байна...</option>
+                <option value="">
+                  Станц ачаалж байна...
+                </option>
               )}
 
               {!loadingStations && stations.length === 0 && (
-                <option value="">Станц олдсонгүй</option>
+                <option value="">
+                  Станц олдсонгүй
+                </option>
               )}
 
               {stations.map((station) => (
@@ -385,7 +471,9 @@ const loadAirQuality = useCallback(async (stationId: string) => {
                   value={String(station.stants_dugaar)}
                 >
                   {station.ner}
-                  {station.aimag ? ` — ${station.aimag}` : ""}
+                  {station.aimag
+                    ? ` — ${station.aimag}`
+                    : ""}
                 </option>
               ))}
             </select>
@@ -397,16 +485,21 @@ const loadAirQuality = useCallback(async (stationId: string) => {
             )}
           </div>
 
-          <div className="chanar-hero-decoration" aria-hidden="true">
+          <div
+            className="chanar-hero-decoration"
+            aria-hidden="true"
+          >
             <span>🌿</span>
             <span>💨</span>
             <span>🌎</span>
           </div>
         </section>
 
+        {/* Алдааны мэдээлэл */}
         {error && (
           <div className="chanar-error" role="alert">
             <span>{error}</span>
+
             <button
               type="button"
               onClick={() => {
@@ -422,12 +515,14 @@ const loadAirQuality = useCallback(async (stationId: string) => {
           </div>
         )}
 
+        {/* AQI индекс */}
         <section className="chanar-aqi-section">
           <div className="chanar-section-heading">
             <div>
               <span className="chanar-section-kicker">
                 ОДООГИЙН ҮЗҮҮЛЭЛТ
               </span>
+
               <h2>Агаарын чанарын индекс</h2>
             </div>
 
@@ -435,7 +530,9 @@ const loadAirQuality = useCallback(async (stationId: string) => {
               type="button"
               className="chanar-refresh-button"
               disabled={loadingAir || !selectedStation}
-              onClick={() => void loadAirQuality(selectedStation)}
+              onClick={() =>
+                void loadAirQuality(selectedStation)
+              }
             >
               ↻ Шинэчлэх
             </button>
@@ -455,7 +552,9 @@ const loadAirQuality = useCallback(async (stationId: string) => {
               </span>
 
               {loadingAir ? (
-                <div className="chanar-loading">Ачаалж байна...</div>
+                <div className="chanar-loading">
+                  Ачаалж байна...
+                </div>
               ) : (
                 <div className="chanar-aqi-number">
                   {formatNumber(air?.aqi)}
@@ -463,13 +562,17 @@ const loadAirQuality = useCallback(async (stationId: string) => {
               )}
 
               <span className="chanar-aqi-status">
-                {loadingAir ? "Мэдээлэл татаж байна" : aqiInfo.label}
+                {loadingAir
+                  ? "Мэдээлэл татаж байна"
+                  : aqiInfo.label}
               </span>
             </div>
 
             <div className="chanar-aqi-description">
               <div className="chanar-aqi-icon">🌱</div>
+
               <h3>{aqiInfo.label}</h3>
+
               <p>{aqiInfo.description}</p>
 
               <div className="chanar-health-advice">
@@ -484,12 +587,17 @@ const loadAirQuality = useCallback(async (stationId: string) => {
           </p>
         </section>
 
-        <section className="chanar-pollutants-section" id="pollutants">
+        {/* Бохирдуулагч бодисууд */}
+        <section
+          className="chanar-pollutants-section"
+          id="pollutants"
+        >
           <div className="chanar-section-heading">
             <div>
               <span className="chanar-section-kicker">
                 БОХИРДУУЛАГЧ БОДИСУУД
               </span>
+
               <h2>Агаар дахь бодисын үзүүлэлт</h2>
             </div>
           </div>
@@ -504,6 +612,7 @@ const loadAirQuality = useCallback(async (stationId: string) => {
                   <span className="chanar-pollutant-icon">
                     {pollutant.icon}
                   </span>
+
                   <span className="chanar-pollutant-name">
                     {pollutant.name}
                   </span>
@@ -516,7 +625,7 @@ const loadAirQuality = useCallback(async (stationId: string) => {
                         air?.[pollutant.key],
                         air?.[pollutant.key] == null
                           ? ""
-                          : ` ${pollutant.unit}`,
+                          : ` ${pollutant.unit}`
                       )}
                 </div>
 
@@ -528,59 +637,41 @@ const loadAirQuality = useCallback(async (stationId: string) => {
           </div>
         </section>
 
-        <section className="chanar-guide-section" id="health">
+        {/* AQI тайлбар */}
+        <section
+          className="chanar-guide-section"
+          id="health"
+        >
           <span className="chanar-section-kicker">
             AQI ТАЙЛБАР
           </span>
+
           <h2>Индексийг хэрхэн ойлгох вэ?</h2>
 
+          <p>
+            Доорх өнгө, ангилал нь одоогийн дэлгэцийн түр
+            дүрслэл юм. Монголын хүчинтэй албан ёсны ангиллын
+            босготой тулгаж баталгаажуулсны дараа эцэслэн хэрэглэнэ.
+          </p>
+
           <div className="chanar-guide-grid">
-            {[
-              {
-                range: "0–50",
-                label: "Сайн",
-                color: "#16a34a",
-                text: "Агаарын чанар хэвийн.",
-              },
-              {
-                range: "51–100",
-                label: "Дунд зэрэг",
-                color: "#ca8a04",
-                text: "Мэдрэмтгий хүмүүс анхаарна.",
-              },
-              {
-                range: "101–150",
-                label: "Мэдрэмтгий бүлэгт муу",
-                color: "#ea580c",
-                text: "Мэдрэмтгий хүмүүс гадаах ачааллаа багасгана.",
-              },
-              {
-                range: "151–200",
-                label: "Муу",
-                color: "#dc2626",
-                text: "Гадаа удаан байхаас зайлсхийнэ.",
-              },
-              {
-                range: "201–300",
-                label: "Маш муу",
-                color: "#9333ea",
-                text: "Гадаах үйл ажиллагааг хязгаарлана.",
-              },
-              {
-                range: "301+",
-                label: "Аюултай",
-                color: "#7f1d1d",
-                text: "Албан ёсны эрүүл мэндийн зөвлөмжийг дагана.",
-              },
-            ].map((item) => (
-              <article className="chanar-guide-card" key={item.range}>
+            {aqiGuide.map((item) => (
+              <article
+                className="chanar-guide-card"
+                key={item.range}
+              >
                 <span
                   className="chanar-guide-dot"
-                  style={{ backgroundColor: item.color }}
+                  style={{
+                    backgroundColor: item.color,
+                  }}
                 />
+
                 <div>
                   <strong>{item.label}</strong>
+
                   <span>{item.range} AQI</span>
+
                   <p>{item.text}</p>
                 </div>
               </article>
@@ -588,9 +679,10 @@ const loadAirQuality = useCallback(async (stationId: string) => {
           </div>
 
           <p className="chanar-disclaimer">
-            Тайлбар: Үзүүлэлтүүд нь API болон өгөгдлийн сангаас ирсэн
-            мэдээлэлд тулгуурлана. Хэмжих нэгж болон AQI тооцоолол нь
-            ашиглаж буй эх сурвалжаас хамаарч өөр байж болно.
+            Тайлбар: Үзүүлэлтүүд нь API болон өгөгдлийн сангаас
+            ирсэн мэдээлэлд тулгуурлана. Хэмжих нэгж болон AQI
+            тооцоолол нь ашиглаж буй эх сурвалжаас хамаарч өөр
+            байж болно.
           </p>
         </section>
       </main>

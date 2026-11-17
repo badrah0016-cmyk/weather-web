@@ -1,21 +1,71 @@
-
 /* =====================================================
-   АГААРЫН ЧАНАР - ҮНДСЭН ЗАГВАР
+   АГААРЫН ЧАНАР — ОРЧИН ҮЕИЙН, УТАСНЫ ЗАГВАР
+   HTML-ийн class нэрс хуучнаараа. Light + Dark (системийн тохиргоогоор).
 ===================================================== */
 
 .chanar-page {
-  --chanar-primary: #087f8c;
+  --chanar-primary: #0a8f9c;
   --chanar-primary-dark: #075b66;
   --chanar-green: #16a34a;
-  --chanar-text: #173b43;
-  --chanar-muted: #71858b;
-  --chanar-border: #e2eceb;
-  --chanar-background: #f4f9f8;
+  --chanar-text: #12343b;
+  --chanar-muted: #6b8187;
+  --chanar-body: #4f676c;
+  --chanar-border: #e1ecea;
+  --chanar-background: #f1f7f6;
 
+  --chanar-surface: #ffffff;
+  --chanar-soft: #f5faf9;
+  --chanar-icon-bg: #e8f6f3;
+  --chanar-chip-border: #cfe7e3;
+  --chanar-shadow: 0 10px 30px rgba(18, 52, 59, 0.06);
+  --chanar-shadow-hover: 0 18px 38px rgba(18, 52, 59, 0.12);
+  --chanar-radius: 22px;
+
+  position: relative;
   min-height: 100vh;
-  background: var(--chanar-background);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(
+      900px 420px at 100% -5%,
+      rgba(10, 143, 156, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px 380px at -10% 25%,
+      rgba(34, 166, 153, 0.08),
+      transparent 60%
+    ),
+    var(--chanar-background);
   color: var(--chanar-text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  .chanar-page {
+    --chanar-primary: #2dd4bf;
+    --chanar-primary-dark: #99f6e4;
+    --chanar-text: #e6f2f1;
+    --chanar-muted: #8fa9ad;
+    --chanar-body: #b4c8cb;
+    --chanar-border: #223c44;
+    --chanar-background: #0a171c;
+
+    --chanar-surface: #112329;
+    --chanar-soft: #162d34;
+    --chanar-icon-bg: #17353a;
+    --chanar-chip-border: #2a4c52;
+    --chanar-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    --chanar-shadow-hover: 0 18px 38px rgba(0, 0, 0, 0.5);
+
+    color-scheme: dark;
+  }
 }
 
 .chanar-page *,
@@ -24,11 +74,51 @@
   box-sizing: border-box;
 }
 
+.chanar-page img,
+.chanar-page svg {
+  max-width: 100%;
+}
+
 .chanar-main {
   width: min(1200px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 32px 0 64px;
+  padding: 32px 0 72px;
 }
+
+/* Эхлэх үеийн зөөлөн гарч ирэлт */
+@keyframes chanar-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes chanar-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.chanar-hero,
+.chanar-aqi-card,
+.chanar-pollutant-card,
+.chanar-guide-section {
+  animation: chanar-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.chanar-pollutant-card:nth-child(2) { animation-delay: 0.05s; }
+.chanar-pollutant-card:nth-child(3) { animation-delay: 0.1s; }
+.chanar-pollutant-card:nth-child(4) { animation-delay: 0.15s; }
+.chanar-pollutant-card:nth-child(5) { animation-delay: 0.2s; }
+.chanar-pollutant-card:nth-child(6) { animation-delay: 0.25s; }
 
 /* =====================================================
    HERO
@@ -40,19 +130,24 @@
   align-items: center;
   justify-content: space-between;
   gap: 32px;
-  min-height: 310px;
+  min-height: 320px;
   overflow: hidden;
-  padding: 42px 48px;
-  border-radius: 28px;
+  padding: 46px 52px;
+  border-radius: 32px;
   background:
     radial-gradient(
-      circle at 90% 15%,
-      rgba(255, 255, 255, 0.22),
-      transparent 30%
+      circle at 88% 12%,
+      rgba(255, 255, 255, 0.28),
+      transparent 34%
     ),
-    linear-gradient(125deg, #075b66 0%, #087f8c 52%, #22a699 100%);
+    radial-gradient(
+      circle at 8% 110%,
+      rgba(167, 243, 208, 0.25),
+      transparent 40%
+    ),
+    linear-gradient(130deg, #06505a 0%, #087f8c 50%, #25ab9c 100%);
   color: #ffffff;
-  box-shadow: 0 16px 40px rgba(8, 127, 140, 0.15);
+  box-shadow: 0 22px 48px rgba(8, 127, 140, 0.22);
 }
 
 .chanar-hero-content {
@@ -65,29 +160,36 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
-  color: #d4f7ee;
-  font-size: 12px;
+  margin-bottom: 18px;
+  padding: 7px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #e6fff7;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.4px;
 }
 
 .chanar-hero h1 {
   max-width: 700px;
   margin: 0 0 16px;
   color: #ffffff;
-  font-size: clamp(30px, 4vw, 46px);
+  font-size: clamp(30px, 4vw, 48px);
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.12;
   letter-spacing: -1.2px;
+  text-wrap: balance;
 }
 
 .chanar-hero-content > p {
   max-width: 610px;
-  margin: 0 0 24px;
-  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 26px;
+  color: rgba(255, 255, 255, 0.86);
   font-size: 15px;
-  line-height: 1.8;
+  line-height: 1.75;
 }
 
 .chanar-station-label {
@@ -98,27 +200,39 @@
   font-weight: 700;
 }
 
+/* Станц сонгох — шилэн (glass) хэв маяг, өөрийн сумтай */
 .chanar-station-select {
   display: block;
-  width: min(410px, 100%);
-  min-height: 48px;
-  padding: 12px 42px 12px 15px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 12px;
+  width: min(420px, 100%);
+  min-height: 52px;
+  padding: 13px 46px 13px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
   outline: none;
-  background-color: #ffffff;
-  color: #173b43;
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: rgba(255, 255, 255, 0.96);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23087f8c' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  color: #12343b;
   font: inherit;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  text-overflow: ellipsis;
   cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
-.chanar-station-select:focus {
+.chanar-station-select:focus-visible {
   border-color: #a7f3d0;
-  box-shadow: 0 0 0 4px rgba(167, 243, 208, 0.25);
+  box-shadow:
+    0 0 0 4px rgba(167, 243, 208, 0.35),
+    0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .chanar-station-select:disabled {
@@ -127,9 +241,13 @@
 }
 
 .chanar-selected-location {
-  margin: 10px 0 0 !important;
-  color: #d4f7ee !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 0 !important;
+  color: #d9fbf0 !important;
   font-size: 12px !important;
+  line-height: 1.5;
 }
 
 .chanar-hero-decoration {
@@ -147,11 +265,13 @@
   width: 112px;
   height: 112px;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   font-size: 46px;
-  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .chanar-hero-decoration span:nth-child(1) {
@@ -184,18 +304,27 @@
   margin-top: 24px;
   padding: 16px 20px;
   border: 1px solid #fecaca;
-  border-radius: 14px;
+  border-radius: 18px;
   background: #fff1f2;
   color: #991b1b;
   font-size: 14px;
   line-height: 1.6;
 }
 
+@media (prefers-color-scheme: dark) {
+  .chanar-error {
+    border-color: #7f3347;
+    background: #3b1d29;
+    color: #fecaca;
+  }
+}
+
 .chanar-error button {
   flex-shrink: 0;
-  padding: 9px 14px;
+  min-height: 44px;
+  padding: 10px 16px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 12px;
   background: #b91c1c;
   color: #ffffff;
   font-weight: 700;
@@ -207,9 +336,29 @@
 }
 
 .chanar-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-top: 18px;
   color: var(--chanar-muted);
   font-size: 15px;
+  animation: chanar-pulse 1.4s ease-in-out infinite;
+}
+
+.chanar-loading::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid var(--chanar-border);
+  border-top-color: var(--chanar-primary);
+  border-radius: 50%;
+  animation: chanar-spin 0.8s linear infinite;
+}
+
+@keyframes chanar-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* =====================================================
@@ -218,8 +367,8 @@
 
 .chanar-aqi-section,
 .chanar-pollutants-section,
-.chanar-guide-section {
-  margin-top: 42px;
+.chanar-page .chanar-guide-section {
+  margin-top: 44px;
 }
 
 .chanar-section-heading {
@@ -230,7 +379,7 @@
   margin-bottom: 20px;
 }
 
-.chanar-section-kicker {
+.chanar-page .chanar-section-kicker {
   display: block;
   margin-bottom: 8px;
   color: var(--chanar-primary);
@@ -240,36 +389,44 @@
 }
 
 .chanar-section-heading h2,
-.chanar-guide-section > h2 {
+.chanar-page .chanar-guide-section > h2 {
   margin: 0;
   color: var(--chanar-text);
-  font-size: clamp(22px, 3vw, 29px);
+  font-size: clamp(22px, 3vw, 30px);
   font-weight: 800;
-  line-height: 1.35;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
 }
 
 .chanar-refresh-button {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 42px;
-  padding: 10px 16px;
-  border: 1px solid #cce6e2;
-  border-radius: 11px;
-  background: #ffffff;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--chanar-chip-border);
+  border-radius: 999px;
+  background: var(--chanar-surface);
   color: var(--chanar-primary-dark);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(18, 52, 59, 0.05);
   transition:
     background 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .chanar-refresh-button:hover:not(:disabled) {
   transform: translateY(-1px);
-  background: #e9f8f4;
+  background: var(--chanar-icon-bg);
+}
+
+.chanar-refresh-button:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .chanar-refresh-button:disabled {
@@ -283,29 +440,30 @@
 
 .chanar-aqi-card {
   display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
+  grid-template-columns: 0.85fr 1.15fr;
   overflow: hidden;
   border: 1px solid var(--chanar-border);
-  border-radius: 24px;
-  background: #ffffff;
-  box-shadow: 0 8px 28px rgba(21, 66, 68, 0.045);
+  border-radius: 28px;
+  background: var(--chanar-surface);
+  box-shadow: var(--chanar-shadow);
 }
 
 .chanar-aqi-number-wrap {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  min-height: 280px;
-  padding: 38px;
+  min-height: 290px;
+  padding: 40px;
   border-right: 1px solid var(--chanar-border);
   background:
     radial-gradient(
-      circle at 15% 10%,
-      color-mix(in srgb, var(--aqi-color) 10%, transparent),
-      transparent 65%
+      circle at 20% 0%,
+      color-mix(in srgb, var(--aqi-color, #0a8f9c) 22%, transparent),
+      transparent 68%
     ),
-    #fbfdfd;
+    var(--chanar-soft);
 }
 
 .chanar-card-caption {
@@ -316,11 +474,13 @@
 }
 
 .chanar-aqi-number {
-  margin: 10px 0 6px;
+  margin: 10px 0 8px;
   color: var(--aqi-color, var(--chanar-primary));
-  font-size: clamp(48px, 7vw, 76px);
+  font-size: clamp(56px, 8vw, 88px);
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1;
+  letter-spacing: -3px;
+  font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 
@@ -328,9 +488,10 @@
   display: inline-flex;
   align-items: center;
   margin-top: 8px;
-  padding: 8px 13px;
+  padding: 9px 15px;
+  border: 1px solid color-mix(in srgb, var(--aqi-color, #0a8f9c) 30%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--aqi-color) 12%, white);
+  background: color-mix(in srgb, var(--aqi-color, #0a8f9c) 14%, var(--chanar-surface));
   color: var(--aqi-color, var(--chanar-primary));
   font-size: 13px;
   font-weight: 800;
@@ -341,41 +502,42 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  padding: 32px 38px;
+  padding: 34px 40px;
 }
 
 .chanar-aqi-icon {
   display: grid;
-  width: 54px;
-  height: 54px;
-  margin-bottom: 14px;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 16px;
   place-items: center;
-  border-radius: 16px;
-  background: #e9f8f1;
-  font-size: 28px;
+  border-radius: 18px;
+  background: var(--chanar-icon-bg);
+  font-size: 29px;
 }
 
 .chanar-aqi-description h3 {
   margin: 0 0 9px;
   color: var(--aqi-color, var(--chanar-text));
-  font-size: 23px;
+  font-size: 24px;
   font-weight: 800;
+  letter-spacing: -0.4px;
 }
 
 .chanar-aqi-description > p {
   margin: 0;
-  color: #60777b;
+  color: var(--chanar-body);
   font-size: 14px;
   line-height: 1.8;
 }
 
 .chanar-health-advice {
   width: 100%;
-  margin-top: 20px;
+  margin-top: 22px;
   padding: 16px 18px;
   border-left: 4px solid var(--aqi-color, var(--chanar-primary));
-  border-radius: 0 12px 12px 0;
-  background: #f4f9f8;
+  border-radius: 6px 16px 16px 6px;
+  background: var(--chanar-soft);
 }
 
 .chanar-health-advice strong {
@@ -387,13 +549,13 @@
 
 .chanar-health-advice p {
   margin: 0;
-  color: #60777b;
+  color: var(--chanar-body);
   font-size: 13px;
   line-height: 1.7;
 }
 
 .chanar-updated {
-  margin: 13px 2px 0;
+  margin: 14px 4px 0;
   color: var(--chanar-muted);
   font-size: 12px;
   text-align: right;
@@ -410,39 +572,60 @@
 }
 
 .chanar-pollutant-card {
+  position: relative;
   min-width: 0;
   padding: 24px;
+  overflow: hidden;
   border: 1px solid var(--chanar-border);
-  border-radius: 20px;
-  background: #ffffff;
-  box-shadow: 0 5px 20px rgba(21, 66, 68, 0.035);
+  border-radius: 24px;
+  background:
+    linear-gradient(160deg, var(--chanar-surface) 55%, var(--chanar-soft) 100%);
+  box-shadow: var(--chanar-shadow);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.chanar-pollutant-card::after {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--chanar-primary) 18%, transparent),
+    transparent 70%
+  );
+  content: "";
+  pointer-events: none;
 }
 
 .chanar-pollutant-card:hover {
   transform: translateY(-4px);
-  border-color: #b6ddd6;
-  box-shadow: 0 12px 26px rgba(21, 66, 68, 0.08);
+  border-color: var(--chanar-chip-border);
+  box-shadow: var(--chanar-shadow-hover);
 }
 
 .chanar-pollutant-top {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 .chanar-pollutant-icon {
   display: grid;
   flex-shrink: 0;
-  width: 45px;
-  height: 45px;
+  width: 46px;
+  height: 46px;
   place-items: center;
-  border-radius: 13px;
-  background: #edf8f6;
+  border-radius: 15px;
+  background: var(--chanar-icon-bg);
   font-size: 23px;
 }
 
@@ -453,14 +636,20 @@
 }
 
 .chanar-pollutant-value {
+  position: relative;
+  z-index: 1;
   color: var(--chanar-primary-dark);
-  font-size: clamp(23px, 3vw, 31px);
+  font-size: clamp(24px, 3vw, 32px);
   font-weight: 800;
-  line-height: 1.35;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 
 .chanar-pollutant-description {
+  position: relative;
+  z-index: 1;
   margin: 8px 0 0;
   color: var(--chanar-muted);
   font-size: 12px;
@@ -469,57 +658,73 @@
 
 /* =====================================================
    AQI GUIDE
+   (.chanar-page-аар хязгаарласан тул өөр CSS-ийн
+    ижил нэртэй class-тай мөргөлдөхгүй)
 ===================================================== */
 
-.chanar-guide-section {
-  padding: 30px;
+.chanar-page .chanar-guide-section {
+  padding: 32px;
   border: 1px solid var(--chanar-border);
-  border-radius: 24px;
-  background: #ffffff;
+  border-radius: 28px;
+  background: var(--chanar-surface);
+  box-shadow: var(--chanar-shadow);
 }
 
-.chanar-guide-section > h2 {
+.chanar-page .chanar-guide-section > h2 {
   margin-bottom: 24px;
 }
 
-.chanar-guide-grid {
+.chanar-page .chanar-guide-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
 
-.chanar-guide-card {
+.chanar-page .chanar-guide-card {
   display: flex;
   align-items: flex-start;
-  gap: 13px;
+  gap: 14px;
   min-width: 0;
-  padding: 17px;
-  border: 1px solid #edf2f1;
-  border-radius: 14px;
-  background: #fcfefe;
+  padding: 18px;
+  border: 1px solid var(--chanar-border);
+  border-radius: 18px;
+  background: var(--chanar-soft);
+  box-shadow: none;
+  transform: none;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
 }
 
-.chanar-guide-dot {
-  flex-shrink: 0;
-  width: 12px;
-  height: 12px;
-  margin-top: 5px;
+.chanar-page .chanar-guide-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--chanar-chip-border);
+  box-shadow: none;
+}
+
+.chanar-page .chanar-guide-dot {
+  display: block;
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  margin-top: 4px;
   border-radius: 50%;
+  box-shadow: 0 0 0 5px rgba(148, 163, 184, 0.16);
 }
 
-.chanar-guide-card > div {
+.chanar-page .chanar-guide-card > div {
   min-width: 0;
   flex: 1;
 }
 
-.chanar-guide-card strong {
+.chanar-page .chanar-guide-card strong {
   display: block;
   color: var(--chanar-text);
   font-size: 14px;
   line-height: 1.5;
 }
 
-.chanar-guide-card span:not(.chanar-guide-dot) {
+.chanar-page .chanar-guide-card span:not(.chanar-guide-dot) {
   display: block;
   margin-top: 4px;
   color: var(--chanar-primary);
@@ -527,36 +732,38 @@
   font-weight: 800;
 }
 
-.chanar-guide-card p {
+.chanar-page .chanar-guide-card p {
   margin: 7px 0 0;
   color: var(--chanar-muted);
   font-size: 12px;
   line-height: 1.7;
 }
 
-.chanar-disclaimer {
+.chanar-page .chanar-disclaimer {
   margin: 24px 0 0;
-  padding: 15px 17px;
-  border-radius: 12px;
-  background: #f4f9f8;
-  color: #647a7d;
+  padding: 16px 18px;
+  border: 0;
+  border-left: 4px solid var(--chanar-primary);
+  border-radius: 6px 16px 16px 6px;
+  background: var(--chanar-soft);
+  color: var(--chanar-body);
   font-size: 12px;
   line-height: 1.8;
 }
 
 /* =====================================================
-   RESPONSIVE: TABLET
+   TABLET
 ===================================================== */
 
 @media (max-width: 900px) {
   .chanar-main {
     width: min(100% - 32px, 760px);
-    padding-top: 24px;
+    padding-top: 22px;
   }
 
   .chanar-hero {
     min-height: 0;
-    padding: 34px;
+    padding: 36px;
   }
 
   .chanar-hero-decoration {
@@ -582,140 +789,183 @@
   }
 
   .chanar-aqi-number-wrap {
-    padding: 28px;
+    padding: 30px;
   }
 
   .chanar-aqi-description {
-    padding: 28px;
+    padding: 30px;
   }
 }
 
 /* =====================================================
-   RESPONSIVE: MOBILE
+   УТАС (MOBILE)
 ===================================================== */
 
 @media (max-width: 600px) {
   .chanar-main {
     width: calc(100% - 24px);
-    padding: 16px 0 40px;
+    padding:
+      max(14px, env(safe-area-inset-top)) 0
+      max(44px, env(safe-area-inset-bottom));
   }
 
+  /* HERO */
   .chanar-hero {
     display: block;
-    padding: 27px 21px;
-    border-radius: 20px;
+    padding: 28px 20px 26px;
+    border-radius: 26px;
+    box-shadow: 0 16px 36px rgba(8, 127, 140, 0.24);
   }
 
   .chanar-eyebrow {
+    margin-bottom: 14px;
+    padding: 6px 11px;
     font-size: 10px;
     letter-spacing: 1px;
   }
 
   .chanar-hero h1 {
+    margin-bottom: 12px;
     font-size: 29px;
-    letter-spacing: -0.6px;
+    letter-spacing: -0.7px;
   }
 
   .chanar-hero-content > p {
-    font-size: 13px;
-    line-height: 1.75;
+    margin-bottom: 22px;
+    font-size: 14px;
+    line-height: 1.7;
   }
 
   .chanar-hero-decoration {
     position: absolute;
-    right: -30px;
-    bottom: -65px;
-    width: 150px;
+    right: -34px;
+    bottom: -66px;
+    width: 160px;
     min-width: 0;
-    height: 150px;
-    opacity: 0.25;
+    height: 160px;
+    opacity: 0.22;
     pointer-events: none;
   }
 
   .chanar-hero-decoration span {
-    width: 72px;
-    height: 72px;
-    font-size: 29px;
+    width: 74px;
+    height: 74px;
+    font-size: 30px;
   }
 
   .chanar-hero-decoration span:nth-child(3) {
-    width: 52px;
-    height: 52px;
-    font-size: 23px;
+    width: 54px;
+    height: 54px;
+    font-size: 24px;
   }
 
+  /* 16px — iOS дээр сонгоход дэлгэц zoom хийхгүй */
   .chanar-station-select {
     position: relative;
     z-index: 3;
-    font-size: 13px;
+    width: 100%;
+    min-height: 54px;
+    font-size: 16px;
   }
 
+  /* SECTIONS */
   .chanar-aqi-section,
   .chanar-pollutants-section,
-  .chanar-guide-section {
-    margin-top: 30px;
+  .chanar-page .chanar-guide-section {
+    margin-top: 28px;
   }
 
   .chanar-section-heading {
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
+    margin-bottom: 16px;
   }
 
   .chanar-section-heading h2,
-  .chanar-guide-section > h2 {
+  .chanar-page .chanar-guide-section > h2 {
     font-size: 22px;
   }
 
   .chanar-refresh-button {
-    min-height: 38px;
-    padding: 8px 10px;
-    font-size: 11px;
+    min-height: 44px;
+    padding: 8px 14px;
+    font-size: 12px;
   }
 
+  /* AQI CARD */
   .chanar-aqi-card {
     grid-template-columns: 1fr;
-    border-radius: 18px;
+    border-radius: 24px;
   }
 
   .chanar-aqi-number-wrap {
-    min-height: 190px;
-    padding: 25px;
+    align-items: center;
+    min-height: 210px;
+    padding: 28px 22px;
     border-right: 0;
     border-bottom: 1px solid var(--chanar-border);
+    text-align: center;
   }
 
   .chanar-aqi-number {
-    font-size: 56px;
+    font-size: 72px;
+    letter-spacing: -2.5px;
   }
 
   .chanar-aqi-description {
-    padding: 25px;
+    padding: 24px 20px 26px;
+  }
+
+  .chanar-aqi-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
   }
 
   .chanar-aqi-description h3 {
     font-size: 21px;
   }
 
+  .chanar-aqi-description > p {
+    font-size: 14px;
+  }
+
+  .chanar-health-advice {
+    margin-top: 18px;
+    padding: 14px 16px;
+  }
+
+  .chanar-health-advice p {
+    font-size: 13px;
+  }
+
+  .chanar-updated {
+    margin-top: 12px;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  /* POLLUTANTS */
   .chanar-pollutants-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
 
   .chanar-pollutant-card {
-    padding: 15px;
-    border-radius: 15px;
+    padding: 16px;
+    border-radius: 20px;
   }
 
   .chanar-pollutant-top {
-    gap: 8px;
-    margin-bottom: 17px;
+    gap: 9px;
+    margin-bottom: 16px;
   }
 
   .chanar-pollutant-icon {
-    width: 35px;
-    height: 35px;
-    border-radius: 10px;
-    font-size: 18px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    font-size: 19px;
   }
 
   .chanar-pollutant-name {
@@ -723,40 +973,77 @@
   }
 
   .chanar-pollutant-value {
-    font-size: 22px;
+    font-size: 23px;
   }
 
   .chanar-pollutant-description {
     font-size: 11px;
+    line-height: 1.6;
   }
 
-  .chanar-guide-section {
-    padding: 21px 16px;
-    border-radius: 18px;
+  /* GUIDE */
+  .chanar-page .chanar-guide-section {
+    padding: 22px 16px;
+    border-radius: 24px;
   }
 
-  .chanar-guide-grid {
+  .chanar-page .chanar-guide-grid {
     grid-template-columns: 1fr;
     gap: 10px;
   }
 
-  .chanar-guide-card {
-    padding: 14px;
+  .chanar-page .chanar-guide-card {
+    padding: 15px;
+    border-radius: 16px;
   }
 
-  .chanar-updated {
-    font-size: 11px;
-    text-align: left;
+  .chanar-page .chanar-guide-card strong {
+    font-size: 15px;
   }
 
+  .chanar-page .chanar-guide-card p {
+    font-size: 13px;
+  }
+
+  .chanar-page .chanar-disclaimer {
+    padding: 14px 15px;
+    font-size: 12px;
+  }
+
+  /* ERROR */
   .chanar-error {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
+    border-radius: 16px;
+  }
+
+  .chanar-error button {
+    width: 100%;
+  }
+}
+
+/* Хуруугаар дардаг төхөөрөмж: hover-ийн үсрэлтийг унтрааж, дарах хариу өгнө */
+@media (hover: none) {
+  .chanar-pollutant-card:hover,
+  .chanar-page .chanar-guide-card:hover,
+  .chanar-refresh-button:hover:not(:disabled) {
+    transform: none;
+    box-shadow: var(--chanar-shadow);
+  }
+
+  .chanar-pollutant-card:active,
+  .chanar-page .chanar-guide-card:active {
+    transform: scale(0.985);
+  }
+
+  .chanar-page button,
+  .chanar-page select {
+    touch-action: manipulation;
   }
 }
 
 /* =====================================================
-   SMALL MOBILE
+   ЖИЖИГ УТАС (≤ 360px)
 ===================================================== */
 
 @media (max-width: 360px) {
@@ -765,7 +1052,7 @@
   }
 
   .chanar-hero {
-    padding: 23px 16px;
+    padding: 24px 16px;
   }
 
   .chanar-hero h1 {
@@ -780,23 +1067,57 @@
     padding: 18px;
   }
 
+  .chanar-pollutant-value {
+    font-size: 28px;
+  }
+
+  .chanar-aqi-number {
+    font-size: 62px;
+  }
+
   .chanar-section-heading {
+    align-items: flex-start;
     flex-direction: column;
   }
 }
 
+/* Утсыг хэвтээ байрлуулсан үед */
+@media (max-height: 480px) and (orientation: landscape) and (max-width: 900px) {
+  .chanar-hero {
+    padding: 22px 26px;
+  }
+
+  .chanar-hero-decoration {
+    display: none;
+  }
+
+  .chanar-aqi-card {
+    grid-template-columns: 0.8fr 1.2fr;
+  }
+
+  .chanar-aqi-number-wrap {
+    min-height: 0;
+    border-right: 1px solid var(--chanar-border);
+    border-bottom: 0;
+  }
+}
+
 /* =====================================================
-   ACCESSIBILITY / REDUCED MOTION
+   ХҮРТЭЭМЖ / ХӨДӨЛГӨӨН БАГАСГАХ
 ===================================================== */
+
+.chanar-page button:focus-visible,
+.chanar-page select:focus-visible {
+  outline: 3px solid rgba(45, 212, 191, 0.5);
+  outline-offset: 3px;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .chanar-page *,
   .chanar-page *::before,
   .chanar-page *::after {
     scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+    animation: none !important;
     transition-duration: 0.01ms !important;
   }
 }
-
