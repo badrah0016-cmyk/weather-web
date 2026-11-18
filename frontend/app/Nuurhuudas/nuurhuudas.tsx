@@ -131,6 +131,8 @@ interface AirQuality {
 }
 
 interface AlertItem {
+    title: ReactNode;
+    description: ReactNode;
     id?: string | number;
     garchig?: string | null;
     tailbar?: string | null;
@@ -1777,7 +1779,16 @@ const hourlyUv = hourlyNext24
 
              {/* Идэвхтэй анхааруулга */}
 
-
+                    {activeAlerts.length > 0 && (
+                        <div className="np-alerts">
+                            {activeAlerts.map((alert) => (
+                                <div key={alert.id} className="np-alert">
+                                    <p className="np-alert-title">{alert.title}</p>
+                                    <p className="np-alert-description">{alert.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 {/* =====================================================
                     ОДООГИЙН ЦАГ АГААР + ГАЗРЫН ЗУРАГ
                 ===================================================== */}
