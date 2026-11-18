@@ -719,6 +719,7 @@ function normalizeStation(value: unknown): Station | null {
 }
 
 
+
 // =====================================================
 // МАССИВЫН ЭХНИЙ ЭЛЕМЕНТ АВАХ
 // =====================================================
@@ -1331,42 +1332,41 @@ if (forecastResult.status === "fulfilled") {
     // Load warning / alert information
     // -------------------------------------------------
 
-   
-    // -------------------------------------------------
-    // Load warning / alert information
-    // -------------------------------------------------
+  // -------------------------------------------------
+// Load warning / alert information
+// -------------------------------------------------
 
-    useEffect(() => {
-        const controller = new AbortController();
+useEffect(() => {
+    const controller = new AbortController();
 
-        async function loadAlerts() {
-            try {
-                const response = await getJson(
-                    alertsUrl(),
-                    controller.signal
-                );
+    async function loadAlerts() {
+        try {
+            const response = await getJson(
+                alertsUrl(),
+                controller.signal
+            );
 
-                const alertRows = getJsonArray<AlertItem>(response);
+            const alertRows = getJsonArray<AlertItem>(response);
 
-                if (!controller.signal.aborted) {
-                    setAlerts(alertRows);
-                }
-            } catch (error) {
-                if (controller.signal.aborted) return;
-
-                console.error(
-                    "Сэрэмжлүүлэг татахад алдаа гарлаа:",
-                    error
-                );
-
-                setAlerts([]);
+            if (!controller.signal.aborted) {
+                setAlerts(alertRows);
             }
+        } catch (error) {
+            if (controller.signal.aborted) return;
+
+            console.error(
+                "Сэрэмжлүүлэг татахад алдаа гарлаа:",
+                error
+            );
+
+            setAlerts([]);
         }
+    }
 
-        void loadAlerts();
+    void loadAlerts();
 
-        return () => controller.abort();
-    }, []);
+    return () => controller.abort();
+}, []);
 
 
     // -------------------------------------------------
@@ -1776,26 +1776,7 @@ const hourlyUv = hourlyNext24
                
 
              {/* Идэвхтэй анхааруулга */}
-{stationAlerts.length > 0 && (
-    <Link href="/sermjluuleg" className="np-alert">
-        <span className="np-alert-icon">⚠️</span>
 
-        <span className="np-alert-text">
-            <strong>{stationAlerts.length} анхааруулга:</strong>{" "}
-            {stationAlerts
-                .slice(0, 2)
-                .map(
-                    (item) =>
-                        item.garchig ||
-                        item.turul ||
-                        "Цаг агаарын анхааруулга"
-                )
-                .join(" · ")}
-        </span>
-
-        <span className="np-alert-arrow">→</span>
-    </Link>
-)}
 
                 {/* =====================================================
                     ОДООГИЙН ЦАГ АГААР + ГАЗРЫН ЗУРАГ
