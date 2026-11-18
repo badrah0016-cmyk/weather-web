@@ -1897,21 +1897,22 @@ const hourlyUv = hourlyNext24
                         </div>
 
                         {/* Өдрийн дээд, доод температур */}
-                        <div className="np-minmax">
-                            <span>
-                                ↑ ИХ{" "}
-                                <strong className="np-max">
-                                    {formatTemp(todayForecast?.temperatur_max_c)}
-                                </strong>
-                            </span>
+                      {/* Өдрийн дээд, доод температур */}
+<div className="np-minmax">
+    <span>
+        ↑ Дээд{" "}
+        <strong className="np-max">
+            {formatTemp(todayForecast?.temperatur_max_c)}
+        </strong>
+    </span>
 
-                            <span>
-                                ↓ БАГА{" "}
-                                <strong className="np-min">
-                                    {formatTemp(todayForecast?.temperatur_min_c)}
-                                </strong>
-                            </span>
-                        </div>
+    <span>
+        ↓ Доод{" "}
+        <strong className="np-min">
+            {formatTemp(todayForecast?.temperatur_min_c)}
+        </strong>
+    </span>
+</div>
 
                         {/* ОДООГИЙН ЦАГ АГААРЫН НЭМЭЛТ МЭДЭЭЛЭЛ */}
                         <div className="np-mini-grid">
