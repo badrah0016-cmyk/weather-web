@@ -7,44 +7,9 @@ import "./Header.css";
 
 type Theme = "light" | "dark";
 
-export default function Header() {
-    const router = useRouter();
-    const pathname = usePathname();
-
-    const [theme, setTheme] = useState<Theme>("light");
-
-    useEffect(() => {
-        try {
-            const savedTheme = localStorage.getItem("weather-theme");
-
-            if (savedTheme === "dark" || savedTheme === "light") {
-                setTheme(savedTheme);
-            }
-        } catch {
-            // Default нь light mode
-        }
-    }, []);
-
-    useEffect(() => {
-        document.documentElement.setAttribute("data-theme", theme);
-
-        try {
-            localStorage.setItem("weather-theme", theme);
-        } catch {
-            // Горимыг тухайн хуудсанд үргэлжлүүлэн хэрэглэнэ
-        }
-    }, [theme]);
-
-    const toggleTheme = () => {
-        setTheme((current) =>
-            current === "light" ? "dark" : "light"
-        );
-    };
-
-
 const navItems = [
     {
-        label: "Монголийн Цаг агаар",
+        label: "Монголын цаг агаар",
         path: "/",
         icon: "⌂",
     },
@@ -60,6 +25,41 @@ const navItems = [
     },
 ];
 
+export default function Header() {
+    const router = useRouter();
+    const pathname = usePathname();
+
+    const [theme, setTheme] = useState<Theme>("light");
+
+    // Хадгалсан theme-ийг унших
+    useEffect(() => {
+        try {
+            const savedTheme = localStorage.getItem("weather-theme");
+
+            if (savedTheme === "dark" || savedTheme === "light") {
+                setTheme(savedTheme);
+            }
+        } catch {
+            // Default light mode
+        }
+    }, []);
+
+    // Theme өөрчлөх
+    useEffect(() => {
+        document.documentElement.setAttribute("data-theme", theme);
+
+        try {
+            localStorage.setItem("weather-theme", theme);
+        } catch {
+            // LocalStorage боломжгүй үед ч theme ажиллана
+        }
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme((current) =>
+            current === "light" ? "dark" : "light"
+        );
+    };
 
     return (
         <header className="header">
@@ -81,6 +81,7 @@ const navItems = [
                         <span className="logo-title">
                             Weather<span>MN</span>
                         </span>
+
                         <span className="logo-subtitle">
                             Монгол орны цаг агаар
                         </span>
@@ -111,7 +112,6 @@ const navItems = [
                         <span className="theme-icon" aria-hidden="true">
                             {theme === "light" ? "☾" : "☀"}
                         </span>
-                     
                     </button>
                 </div>
             </div>
@@ -133,7 +133,9 @@ const navItems = [
                                     isActive ? "active" : ""
                                 }`}
                                 onClick={() => router.push(item.path)}
-                                aria-current={isActive ? "page" : undefined}
+                                aria-current={
+                                    isActive ? "page" : undefined
+                                }
                             >
                                 <span
                                     className="menu-icon"
@@ -141,6 +143,7 @@ const navItems = [
                                 >
                                     {item.icon}
                                 </span>
+
                                 <span>{item.label}</span>
                             </button>
                         );

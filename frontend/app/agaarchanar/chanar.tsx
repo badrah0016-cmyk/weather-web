@@ -9,7 +9,6 @@ import {
 } from "react";
 
 import AgaarHeader from "./AgaarHeader";
-import Footer from "../hesguud/Footer";
 import "./chanar.css";
 
 const API_BASE_URL = "/backend/weather_db";
@@ -687,7 +686,7 @@ export default function ChanarPage() {
         </section>
       </main>
 
-      <Footer />
+     
     </div>
   );
 }

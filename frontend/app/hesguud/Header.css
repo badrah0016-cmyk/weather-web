@@ -1,10 +1,14 @@
 
 /* =========================================
-   WEATHERMN — MODERN HEADER
+   WEATHERMN — MODERN FIXED HEADER
 ========================================= */
 
+:root {
+    --weather-header-height: 147px;
+}
+
 .header {
-    --header-bg: rgba(255, 255, 255, 0.94);
+    --header-bg: rgba(255, 255, 255, 0.97);
     --header-text: #0f172a;
     --header-muted: #64748b;
     --header-border: #e2e8f0;
@@ -16,16 +20,19 @@
     --control-bg: #ffffff;
     --control-border: #dbe3ef;
 
-    position: relative;
-    z-index: 100;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
 
     width: 100%;
+    margin: 0 !important;
+    z-index: 99999;
 
     background: var(--header-bg);
     color: var(--header-text);
     border-bottom: 1px solid var(--header-border);
-
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.045);
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
 
     transition:
         background 0.25s ease,
@@ -122,8 +129,6 @@
     font-weight: 800;
     letter-spacing: -0.8px;
     line-height: 1.1;
-
-    transition: color 0.25s ease;
 }
 
 .logo-title span {
@@ -136,8 +141,6 @@
     font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.1px;
-
-    transition: color 0.25s ease;
 }
 
 /* =========================================
@@ -230,10 +233,6 @@
 
     background: var(--menu-bg);
     border-top: 1px solid var(--header-border);
-
-    transition:
-        background 0.25s ease,
-        border-color 0.25s ease;
 }
 
 .menu-inner {
@@ -323,7 +322,7 @@
 ========================================= */
 
 :root[data-theme="dark"] .header {
-    --header-bg: rgba(15, 23, 42, 0.97);
+    --header-bg: rgba(15, 23, 42, 0.98);
     --header-text: #f8fafc;
     --header-muted: #a8b6ca;
     --header-border: #263449;
@@ -347,10 +346,14 @@
 }
 
 /* =========================================
-   RESPONSIVE TABLET
+   TABLET
 ========================================= */
 
 @media (max-width: 900px) {
+    :root {
+        --weather-header-height: 147px;
+    }
+
     .header-top {
         padding: 0 22px;
     }
@@ -371,14 +374,17 @@
 }
 
 /* =========================================
-   RESPONSIVE MOBILE
+   MOBILE
 ========================================= */
 
 @media (max-width: 600px) {
+    :root {
+        --weather-header-height: 131px;
+    }
+
     .header-top {
         min-height: 76px;
         padding: 13px 16px;
-
         gap: 10px;
     }
 
@@ -480,6 +486,17 @@
 }
 
 /* =========================================
+   FIXED HEADER — PAGE OFFSET
+========================================= */
+
+html {
+    scroll-padding-top: 170px;
+}
+
+body {
+    padding-top: var(--weather-header-height, 147px);
+}
+/* =========================================
    REDUCED MOTION
 ========================================= */
 
@@ -497,11 +514,16 @@
 ========================================= */
 
 .station-layout {
+    position: relative;
+    z-index: 1;
+
     display: grid;
     grid-template-columns: minmax(260px, 330px) minmax(0, 1fr);
     gap: 18px;
     align-items: start;
     margin-bottom: 24px;
+
+    scroll-margin-top: calc(var(--weather-header-height, 147px) + 15px);
 }
 
 .station-panel,
@@ -707,6 +729,10 @@
 .station-weather-error {
     color: #b91c1c;
 }
+
+/* =========================================
+   STATION MOBILE
+========================================= */
 
 @media (max-width: 760px) {
     .station-layout {

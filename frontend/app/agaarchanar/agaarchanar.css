@@ -2082,3 +2082,153 @@ html[data-theme="light"] .aq-page {
     transform: none;
   }
 }
+
+/* ---------- Газрын зургийн дээд мөр ---------- */
+.aq-map-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 10px;
+  background: linear-gradient(90deg, #0d9488, #0284c7);
+}
+
+.aq-map-field {
+  display: flex;
+  flex: 1 1 170px;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.aq-map-field > span {
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.aq-map-field select {
+  width: 100%;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.aq-map-field select:focus-visible {
+  outline: 3px solid rgb(255 255 255 / 60%);
+  outline-offset: 2px;
+}
+
+/* ---------- Станцын тэмдэг ---------- */
+.aq-aqi-marker-wrap {
+  background: transparent;
+  border: 0;
+}
+
+.aq-aqi-marker {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 35%);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.aq-aqi-marker:hover {
+  transform: scale(1.12);
+}
+
+.aq-aqi-marker.selected {
+  border-color: #0f172a;
+  box-shadow: 0 0 0 4px rgb(15 23 42 / 25%), 0 4px 12px rgb(0 0 0 / 40%);
+  font-size: 16px;
+}
+
+.aq-page .aq-name-tip {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ---------- Сонгосон станцын карт: том, ойлгомжтой ---------- */
+.aq-selected-location strong { font-size: 16px; }
+.aq-selected-location small { font-size: 12px; }
+.aq-aqi-panel { min-height: 96px; padding: 12px; }
+.aq-aqi-label { font-size: 12px; }
+.aq-aqi-category { min-height: 22px; font-size: 11px; }
+.aq-aqi-description p { margin: 4px 0; font-size: 12px; line-height: 1.5; }
+.aq-station-meta span { font-size: 11px; }
+.aq-station-meta strong,
+.aq-station-meta .aq-meta-date { font-size: 12px; }
+
+/* ---------- Нүүр хуудсанд газрын зураг + карт бүтнээрээ харагдана ---------- */
+@media (min-width: 901px) {
+  .aq-content { padding-top: 16px; }
+
+  .aq-page-heading { margin-bottom: 12px; }
+  .aq-page-heading p { display: none; }
+
+  .aq-layout-top {
+    height: calc(100vh - 150px);
+    min-height: 560px;
+    max-height: 820px;
+  }
+
+  .aq-map-card,
+  .aq-selected-station-card,
+  .aq-map-container {
+    min-height: 0;
+  }
+
+  .aq-selected-station-card { overflow-y: auto; }
+}
+
+/* УБ-ын нэгдсэн тэмдэг */
+.aq-ub-badge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  padding: 1px 6px;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  background: #0284c7;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.4;
+  transform: translateX(-50%);
+}
+
+.aq-ub-zoom {
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #334155;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Картан дахь нэгж / дэд индекс */
+.aq-aqi-subline {
+  display: block;
+  margin: 0 0 6px;
+  color: var(--aq-muted);
+  font-size: 12px;
+  font-weight: 600;
+}

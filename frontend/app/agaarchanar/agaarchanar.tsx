@@ -4,6 +4,16 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import AgaarHeader from "./AgaarHeader";
 import type { Station, AirQualityRow } from "./AgaarchanarMap";
+import {
+  POLLUTANT_BY_ID,
+  computeStation,
+  getAqiCategory,
+  metricValue,
+  type Metric,
+  type PollutantId,
+  type StationAqi,
+} from "./aqi";
+import { getAimag } from "./aimag";
 import "./agaarchanar.css";
 
 const API_BASE_URL = "/backend";
@@ -21,10 +31,10 @@ const AgaarchanarMap = dynamic(() => import("./AgaarchanarMap"), {
 type UnknownRecord = Record<string, unknown>;
 
 type Pollutant = {
+  id: PollutantId;
   label: string;
   name: string;
   keys: string[];
-  unit: string;
   description: string;
 };
 
@@ -37,61 +47,48 @@ type AQIInfo = {
 
 const TIME_ZONE = "Asia/Ulaanbaatar";
 
-/**
- * Жишиг хүлцэх агууламж.
- *
- * Эдгээр нь PM2.5, PM10-ын 24 цагийн хүлцэх утгын
- * жишээ юм. Монголын хүчинтэй AQI аргачлалын бүх
- * шаардлага, хугацаа, нэгжийг баталгаажуулсны дараа
- * үйлдвэрлэлийн хэрэглээнд эцэслэн тохируулна.
- */
-const MONGOLIAN_AQI_LIMITS = {
-  pm25: 50,
-  pm10: 100,
-} as const;
-
 const pollutants: Pollutant[] = [
   {
+    id: "pm25",
     label: "PM2.5",
     name: "Нарийн ширхэгт тоосонцор",
     keys: ["pm25", "PM25", "pm2_5", "pm2.5", "pm_2_5"],
-    unit: "µg/m³",
     description:
       "Уушгины гүнд нэвтэрч болох нарийн ширхэгт тоосонцор.",
   },
   {
+    id: "pm10",
     label: "PM10",
     name: "Том ширхэгт тоосонцор",
     keys: ["pm10", "PM10", "pm_10"],
-    unit: "µg/m³",
     description: "Тоос, шороо болон бусад ширхэгт бодис.",
   },
   {
+    id: "no2",
     label: "NO₂",
     name: "Азотын давхар исэл",
     keys: ["no2", "NO2"],
-    unit: "API-ийн нэгжийг шалгана уу",
     description: "Тээврийн хэрэгсэл болон шаталтаас үүсэж болно.",
   },
   {
+    id: "so2",
     label: "SO₂",
     name: "Хүхрийн давхар исэл",
     keys: ["so2", "SO2"],
-    unit: "API-ийн нэгжийг шалгана уу",
     description: "Хүхэр агуулсан түлшний шаталтаас үүсэж болно.",
   },
   {
+    id: "co",
     label: "CO",
     name: "Нүүрстөрөгчийн дутуу исэл",
     keys: ["co", "CO"],
-    unit: "API-ийн нэгжийг шалгана уу",
     description: "Бүрэн бус шаталтын үед үүсдэг хий.",
   },
   {
+    id: "o3",
     label: "O₃",
     name: "Газрын түвшний озон",
     keys: ["o3", "O3", "O₃"],
-    unit: "API-ийн нэгжийг шалгана уу",
     description: "Нарны гэрлийн нөлөөгөөр бусад бодисоос үүсэж болно.",
   },
 ];
@@ -115,6 +112,15 @@ function asRecord(value: unknown): UnknownRecord {
   }
 
   return {};
+}
+
+function sortByName(list: Station[]): Station[] {
+  return [...list].sort((a, b) =>
+    String(asRecord(a).ner ?? "").localeCompare(
+      String(asRecord(b).ner ?? ""),
+      "mn",
+    ),
+  );
 }
 
 // =====================================================
@@ -366,120 +372,9 @@ function unwrapArray<T>(json: unknown): T[] {
 }
 
 // =====================================================
-// AQI ТООЦООЛОЛ
-// МОНГОЛЫН АРГАЧЛАЛЫН ЗАРЧИМД ТУЛГУУРЛАСАН
+// AQI ЗӨВЛӨМЖ
+// AQI-н тооцоолол, өнгө, ангилал нь ./aqi.ts (MNS4585:2025)
 // =====================================================
-
-/**
- * Дэд индексийн жишиг тооцоо:
- *
- * Дэд индекс = хэмжсэн агууламж / хүлцэх агууламж × 100
- *
- * Анхаарах:
- * - PM2.5, PM10-ын агууламж µg/m³ байх ёстой.
- * - Хүлцэх агууламж болон хэмжилтийн хугацаа тохирсон байх ёстой.
- * - Энд PM2.5, PM10 л тооцогдоно.
- * - Энэ функц дангаараа Монголын албан ёсны бүх AQI
- *   дүрэм, ангилал, хэмжилтийн хугацааг орлохгүй.
- */
-function calculateSubIndex(
-  concentration: number | null,
-  limit: number,
-): number | null {
-  if (
-    concentration === null ||
-    !Number.isFinite(concentration) ||
-    concentration < 0 ||
-    !Number.isFinite(limit) ||
-    limit <= 0
-  ) {
-    return null;
-  }
-
-  return Math.round((concentration / limit) * 100);
-}
-
-/**
- * PM2.5 болон PM10-ын дэд индексийг тус тус тооцно.
- * Нийт үзүүлэлтээр хамгийн өндөр дэд индексийг авна.
- *
- * API-ийн aqi талбарыг энд ашиглахгүй. API-аас ирсэн
- * aqi нь ямар аргачлалаар тооцогдсоныг баталгаажуулаагүй.
- */
-function getCalculatedAqi(
-  row?: AirQualityRow | null,
-): number | null {
-  if (!row) return null;
-
-  const pm25 = getNumber(row, [
-    "pm25",
-    "PM25",
-    "pm2_5",
-    "pm2.5",
-    "pm_2_5",
-  ]);
-
-  const pm10 = getNumber(row, [
-    "pm10",
-    "PM10",
-    "pm_10",
-  ]);
-
-  const pm25Index = calculateSubIndex(
-    pm25,
-    MONGOLIAN_AQI_LIMITS.pm25,
-  );
-
-  const pm10Index = calculateSubIndex(
-    pm10,
-    MONGOLIAN_AQI_LIMITS.pm10,
-  );
-
-  const indexes = [pm25Index, pm10Index].filter(
-    (value): value is number => value !== null,
-  );
-
-  if (indexes.length === 0) {
-    return null;
-  }
-
-  return Math.max(...indexes);
-}
-
-/**
- * Нэг л эх үүсвэрээс индекс авна.
- * API-ийн aqi-г өөр аргачлалын үр дүн байж болох тул
- * тооцоолсон утгатай хольж ашиглахгүй.
- */
-function getValidatedAqi(
-  row?: AirQualityRow | null,
-): number | null {
-  return getCalculatedAqi(row);
-}
-
-// =====================================================
-// AQI АНГИЛАЛ, ӨНГӨ, ЗӨВЛӨМЖ
-// =====================================================
-
-function getCategory(aqi: number | null): string {
-  if (aqi === null) return "Индекс тодорхойгүй";
-  if (aqi <= 50) return "Цэвэр";
-  if (aqi <= 100) return "Хэвийн";
-  if (aqi <= 200) return "Бага бохирдолтой";
-  if (aqi <= 300) return "Бохирдолтой";
-  if (aqi <= 400) return "Их бохирдолтой";
-  return "Маш их бохирдолтой";
-}
-
-function getAqiColor(aqi: number | null): string {
-  if (aqi === null) return "#64748b";
-  if (aqi <= 50) return "#16a34a";   // Ногоон
-  if (aqi <= 100) return "#eab308";  // Шар
-  if (aqi <= 200) return "#f97316";  // Улбар шар
-  if (aqi <= 300) return "#dc2626";  // Улаан
-  if (aqi <= 400) return "#a855f7";  // Ягаан
-  return "#340e00";                  // Хүрэн бор
-}
 
 function getAQIInfo(aqi: number | null): AQIInfo {
   if (aqi === null || !Number.isFinite(aqi) || aqi < 0) {
@@ -542,26 +437,16 @@ function getAQIInfo(aqi: number | null): AQIInfo {
     };
   }
 
-  if (aqi <= 500) {
-    return {
-      label: "Маш их бохирдолтой",
-      color: "#800020",
-      description:
-        "Агаарын бохирдол маш аюултай түвшинд хүрсэн байна.",
-      advice:
-        "Гадаах үйл ажиллагааг аль болох хязгаарлаж, албан ёсны эрүүл мэндийн зөвлөмжийг дагаарай.",
-    };
-  }
-
   return {
     label: "Маш их бохирдолтой",
     color: "#800020",
     description:
-      "Индекс 500-аас давсан байна. Агаарын бохирдол маш өндөр түвшинд байна.",
+      "Агаарын бохирдол маш аюултай түвшинд хүрсэн байна.",
     advice:
-      "Гадаах үйл ажиллагааг хязгаарлаж, албан ёсны эрүүл мэндийн зөвлөмжийг дагаарай.",
+      "Гадаах үйл ажиллагааг аль болох хязгаарлаж, албан ёсны эрүүл мэндийн зөвлөмжийг дагаарай.",
   };
 }
+
 // =====================================================
 // ҮНДСЭН ХУУДАС
 // =====================================================
@@ -572,6 +457,8 @@ export default function AgaarchanarPage() {
   const [selectedStation, setSelectedStation] = useState<
     string | number | null
   >(null);
+  const [metric, setMetric] = useState<Metric>("aqi");
+  const [aimag, setAimag] = useState("");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -655,18 +542,9 @@ export default function AgaarchanarPage() {
           return current;
         }
 
-        const ulaanbaatar = stationList.find((station) => {
-          const item = asRecord(station);
-          const name = String(item.ner ?? "")
-            .toLocaleLowerCase("mn-MN");
-          const aimag = String(item.aimag ?? "")
-            .toLocaleLowerCase("mn-MN");
-
-          return (
-            name.includes("улаанбаатар") ||
-            aimag.includes("улаанбаатар")
-          );
-        });
+        const ulaanbaatar = stationList.find(
+          (station) => getAimag(station) === "Улаанбаатар",
+        );
 
         const first = ulaanbaatar ?? stationList[0];
 
@@ -729,6 +607,35 @@ export default function AgaarchanarPage() {
   }, [airRows]);
 
   // ---------------------------------------------------
+  // СТАНЦ БҮРИЙН AQI (MNS4585:2025)
+  // Бүх мөрийг ашиглан 24/8 цагийн дундаж гаргана.
+  // ---------------------------------------------------
+
+  const stationAqi = useMemo(() => {
+    const grouped = new Map<string, UnknownRecord[]>();
+
+    for (const row of airRows) {
+      const id = getRowStationId(row);
+
+      if (id === null) continue;
+
+      const key = String(id);
+      const list = grouped.get(key);
+
+      if (list) list.push(asRecord(row));
+      else grouped.set(key, [asRecord(row)]);
+    }
+
+    const result = new Map<string, StationAqi>();
+
+    for (const [key, rows] of grouped) {
+      result.set(key, computeStation(rows));
+    }
+
+    return result;
+  }, [airRows]);
+
+  // ---------------------------------------------------
   // СОНГОСОН СТАНЦ
   // ---------------------------------------------------
 
@@ -746,16 +653,160 @@ export default function AgaarchanarPage() {
     [stations, selectedStation],
   );
 
-  const selectedAir = selectedStationData
-    ? latestByStation.get(
-        String(getStationId(selectedStationData)),
-      )
+  // ---------------------------------------------------
+  // СТАНЦ / АЙМАГ / ҮЗҮҮЛЭЛТ СОНГОХ
+  // ---------------------------------------------------
+
+  // Станц нь сонгосон үзүүлэлтээр хэмжилттэй эсэх
+  const hasData = useCallback(
+    (station: Station, m: Metric) =>
+      metricValue(stationAqi.get(String(getStationId(station))), m)
+        .value !== null,
+    [stationAqi],
+  );
+
+  // Жагсаалтаас хэмжилттэй станц сонгох (одоогийнхыг боломжтой бол хадгална)
+  const chooseStation = useCallback(
+    (
+      candidates: Station[],
+      m: Metric,
+      prefer: string | number | null,
+    ) => {
+      const sorted = sortByName(candidates);
+
+      const keep = sorted.find(
+        (s) =>
+          String(getStationId(s)) === String(prefer) &&
+          hasData(s, m),
+      );
+
+      return keep ?? sorted.find((s) => hasData(s, m)) ?? null;
+    },
+    [hasData],
+  );
+
+  // Станц сонгох (аймаг нь станцтай таарахгүй бол аймгийг нь солино)
+  const selectStation = useCallback(
+    (id: string | number | null) => {
+      setSelectedStation(id);
+
+      if (id === null) return;
+
+      const station = stations.find(
+        (s) => String(getStationId(s)) === String(id),
+      );
+
+      if (!station) return;
+
+      const stationAimag = getAimag(station);
+
+      setAimag((current) =>
+        current && current !== stationAimag
+          ? stationAimag
+          : current,
+      );
+    },
+    [stations],
+  );
+
+  // Аймаг солих → тухайн аймгийн станц сонгогдож, карт солигдоно
+  const handleAimagChange = useCallback(
+    (next: string) => {
+      setAimag(next);
+
+      if (!next) return;
+
+      const pool = stations.filter((s) => getAimag(s) === next);
+
+      const target =
+        chooseStation(pool, metric, selectedStation) ??
+        sortByName(pool)[0] ??
+        null;
+
+      if (target) setSelectedStation(getStationId(target));
+    },
+    [stations, metric, selectedStation, chooseStation],
+  );
+
+  // Үзүүлэлт солих → сонгосон станцад хэмжилт байхгүй бол өөр станц сонгоно
+  const handleMetricChange = useCallback(
+    (next: Metric) => {
+      setMetric(next);
+
+      if (selectedStationData && hasData(selectedStationData, next)) {
+        return;
+      }
+
+      const pool = aimag
+        ? stations.filter((s) => getAimag(s) === aimag)
+        : stations;
+
+      const target = chooseStation(pool, next, null);
+
+      if (target) setSelectedStation(getStationId(target));
+    },
+    [
+      aimag,
+      stations,
+      selectedStationData,
+      hasData,
+      chooseStation,
+    ],
+  );
+
+  // ---------------------------------------------------
+  // КАРТАНД ХАРУУЛАХ УТГА (сонгосон үзүүлэлтээр)
+  // ---------------------------------------------------
+
+  const selectedKey = selectedStationData
+    ? String(getStationId(selectedStationData))
+    : null;
+
+  const selectedAir = selectedKey
+    ? latestByStation.get(selectedKey)
     : undefined;
 
-  const aqi = getValidatedAqi(selectedAir);
-  const category = getCategory(aqi);
-  const aqiColor = getAqiColor(aqi);
-  const aqiInfo = getAQIInfo(aqi);
+  const selectedResult = selectedKey
+    ? stationAqi.get(selectedKey)
+    : undefined;
+
+  const aqi = selectedResult?.aqi ?? null;
+
+  const metricCfg =
+    metric === "aqi" ? null : POLLUTANT_BY_ID[metric];
+
+  const metricItem = metricCfg
+    ? selectedResult?.items[metricCfg.id]
+    : null;
+
+  const { value: metricVal, index: panelIndex } = metricValue(
+    selectedResult,
+    metric,
+  );
+
+  const panelCategory = getAqiCategory(panelIndex);
+  const panelInfo = getAQIInfo(panelIndex);
+
+  const panelTitle = metricCfg
+    ? `${metricCfg.name} (${metricCfg.label})`
+    : "Агаарын чанарын индекс (MNS4585:2025)";
+
+  const panelNumber = metricCfg
+    ? formatValue(metricVal)
+    : aqi ?? "—";
+
+  const windowText = metricCfg
+    ? metricCfg.hours === 1
+      ? "1 цагийн утга"
+      : metricItem?.approx
+        ? `Сүүлийн хэмжилт (${metricCfg.hours} цагийн дундаж гаргах мөр дутуу)`
+        : `${metricCfg.hours} цагийн дундаж`
+    : null;
+
+  const dominantLabel = selectedResult?.dominant
+    ? POLLUTANT_BY_ID[selectedResult.dominant].label
+    : null;
+
   const selectedMeasurementDate =
     getMeasurementDate(selectedAir);
 
@@ -775,7 +826,7 @@ export default function AgaarchanarPage() {
         const text = [
           item.ner ?? "",
           item.ner_en ?? "",
-          item.aimag ?? "",
+          getAimag(station),
           getStationId(station) ?? "",
         ]
           .join(" ")
@@ -798,7 +849,7 @@ export default function AgaarchanarPage() {
         if (id === null) return null;
 
         const row = latestByStation.get(String(id));
-        const value = getValidatedAqi(row);
+        const value = stationAqi.get(String(id))?.aqi ?? null;
 
         if (!row || value === null) return null;
 
@@ -853,7 +904,7 @@ export default function AgaarchanarPage() {
         ? getMeasurementDate(newest.row)
         : null,
     };
-  }, [stations, latestByStation]);
+  }, [stations, latestByStation, stationAqi]);
 
   // ---------------------------------------------------
   // RENDER
@@ -873,8 +924,9 @@ export default function AgaarchanarPage() {
             <h1>Монголын агаарын чанар</h1>
 
             <p>
-              Станцын хэмжилт, тооцоолсон индекс болон
-              бохирдуулагч бодисын мэдээлэл.
+              Станцын хэмжилт, MNS4585:2025 стандартаар
+              тооцоолсон индекс болон бохирдуулагч бодисын
+              мэдээлэл.
             </p>
           </div>
 
@@ -906,183 +958,6 @@ export default function AgaarchanarPage() {
           </div>
         )}
 
-        {/* СТАНЦ ХАЙХ */}
-        <section
-          className="aq-search-card"
-          aria-label="Станц хайх"
-        >
-          <div className="aq-section-heading">
-            <div>
-              <h2>Станц хайх</h2>
-              <p>
-                Аймаг, станцын нэр эсвэл дугаараар хайна уу.
-              </p>
-            </div>
-
-            <span className="aq-map-badge">
-              {stations.length} СТАНЦ
-            </span>
-          </div>
-
-          <div className="aq-search-input-wrap">
-            <span
-              className="aq-search-icon"
-              aria-hidden="true"
-            >
-              ⌕
-            </span>
-
-            <input
-              className="aq-station-search"
-              type="search"
-              value={search}
-              onChange={(event) =>
-                setSearch(event.target.value)
-              }
-              placeholder="Жишээ: Улаанбаатар, Орхон, 12401..."
-              aria-label="Станц хайх"
-              autoComplete="off"
-            />
-
-            {search && (
-              <button
-                className="aq-clear-search"
-                type="button"
-                aria-label="Хайлтыг арилгах"
-                onClick={() => setSearch("")}
-              >
-                ×
-              </button>
-            )}
-          </div>
-
-          {search.trim() ? (
-            <div className="aq-station-list">
-              {filteredStations.map((station) => {
-                const id = getStationId(station);
-
-                if (id === null) return null;
-
-                const item = asRecord(station);
-                const active =
-                  String(id) === String(selectedStation);
-
-                return (
-                  <button
-                    className={`aq-station-option ${
-                      active ? "selected" : ""
-                    }`}
-                    type="button"
-                    key={String(id)}
-                    onClick={() => {
-                      setSelectedStation(id);
-                      setSearch("");
-                    }}
-                  >
-                    <span
-                      className="aq-station-pin"
-                      aria-hidden="true"
-                    >
-                      ●
-                    </span>
-
-                    <span className="aq-station-option-text">
-                      <strong>
-                        {String(item.ner ?? "Нэргүй станц")}
-                      </strong>
-                      <small>
-                        {String(
-                          item.aimag ??
-                            "Байршил тодорхойгүй",
-                        )}
-                      </small>
-                    </span>
-
-                    <span
-                      className="aq-option-arrow"
-                      aria-hidden="true"
-                    >
-                      ›
-                    </span>
-                  </button>
-                );
-              })}
-
-              {filteredStations.length === 0 && (
-                <p className="aq-no-results">
-                  Хайлтад тохирох станц олдсонгүй.
-                </p>
-              )}
-            </div>
-          ) : (
-            <p className="aq-search-hint">
-              Газрын зураг дээрх тэмдэглэгээг дарж станц сонгоно уу.
-            </p>
-          )}
-        </section>
-
-        {/* СТАНЦ СОНГОХ */}
-        <section className="aq-search-card">
-          <div className="aq-section-heading">
-            <div>
-              <h2>Станц сонгох</h2>
-              <p>
-                Жагсаалтаас хэмжилтийн станцаа сонгоно уу.
-              </p>
-            </div>
-          </div>
-
-          <select
-            className="aq-station-search"
-            aria-label="Хэмжилтийн станц сонгох"
-            value={
-              selectedStation === null
-                ? ""
-                : String(selectedStation)
-            }
-            disabled={loading || stations.length === 0}
-            onChange={(event) => {
-              const station = stations.find(
-                (item) =>
-                  String(getStationId(item)) ===
-                  event.target.value,
-              );
-
-              setSelectedStation(
-                station ? getStationId(station) : null,
-              );
-            }}
-          >
-            {stations.length === 0 && (
-              <option value="">
-                {loading
-                  ? "Станц ачаалж байна..."
-                  : "Станц олдсонгүй"}
-              </option>
-            )}
-
-            {stations.map((station) => {
-              const id = getStationId(station);
-
-              if (id === null) return null;
-
-              const item = asRecord(station);
-
-              return (
-                <option
-                  key={String(id)}
-                  value={String(id)}
-                >
-                  {String(item.ner ?? "Нэргүй станц")}
-                  {item.aimag
-                    ? ` — ${String(item.aimag)}`
-                    : ""}
-                </option>
-              );
-            })}
-          </select>
-        </section>
-
         {/* ГАЗРЫН ЗУРАГ БА СОНГОСОН СТАНЦ */}
         <div className="aq-layout-top" id="map">
           <section className="aq-map-card">
@@ -1090,8 +965,8 @@ export default function AgaarchanarPage() {
               <div>
                 <h2>Станцуудын газрын зураг</h2>
                 <p>
-                  Газрын зураг дээрх өнгө нь боломжтой AQI утгыг
-                  харуулна.
+                  Үзүүлэлт, аймгаа сонгоход баруун талын карт
+                  солигдоно. Станц дээр дарж сонгоно уу.
                 </p>
               </div>
 
@@ -1110,9 +985,11 @@ export default function AgaarchanarPage() {
                 stations={stations}
                 airRows={airRows}
                 selectedStation={selectedStation}
-                onSelectStation={(id) => {
-                  setSelectedStation(String(id));
-                }}
+                onSelectStation={(id) => selectStation(String(id))}
+                metric={metric}
+                onMetricChange={handleMetricChange}
+                aimag={aimag}
+                onAimagChange={handleAimagChange}
               />
             )}
           </section>
@@ -1122,7 +999,10 @@ export default function AgaarchanarPage() {
               <div className="aq-card-heading">
                 <div>
                   <h2>Сонгосон станц</h2>
-                  <p>Хамгийн сүүлд бүртгэгдсэн хэмжилт</p>
+                  <p>
+                    {aimag || "Бүх аймаг"} ·{" "}
+                    {metricCfg ? metricCfg.label : "AQI"}
+                  </p>
                 </div>
 
                 <span
@@ -1166,65 +1046,68 @@ export default function AgaarchanarPage() {
                         )}
                       </strong>
 
-                      <small>
-                        {String(
-                          asRecord(selectedStationData).aimag ??
-                            "Монгол Улс",
-                        )}
-                      </small>
+                      <small>{getAimag(selectedStationData)}</small>
                     </div>
                   </div>
 
                   <div className="aq-aqi-panel">
                     <div>
                       <span className="aq-aqi-label">
-                        Тооцоолсон агаарын чанарын индекс
+                        {panelTitle}
                       </span>
 
                       <div
                         className="aq-aqi-number"
-                        style={{ color: aqiColor }}
+                        style={{ color: panelCategory.color }}
                       >
-                        {aqi ?? "—"}
+                        {panelNumber}
                       </div>
+
+                      {metricCfg && (
+                        <span className="aq-aqi-subline">
+                          {metricCfg.unit}
+                          {panelIndex !== null &&
+                            ` · дэд индекс ${panelIndex}`}
+                        </span>
+                      )}
 
                       <span
                         className="aq-aqi-category"
                         style={{
-                          color: aqiColor,
-                          borderColor: aqiColor,
-                          background: `${aqiColor}12`,
+                          color: panelCategory.color,
+                          borderColor: panelCategory.color,
+                          background: `${panelCategory.color}12`,
                         }}
                       >
-                        {category}
+                        {panelCategory.label}
                       </span>
                     </div>
 
                     <span
                       className="aq-aqi-indicator"
-                      style={{ background: aqiColor }}
+                      style={{ background: panelCategory.color }}
                     />
                   </div>
 
                   <div
                     className="aq-aqi-description"
                     style={{
-                      borderLeft: `4px solid ${aqiInfo.color}`,
+                      borderLeft: `4px solid ${panelInfo.color}`,
                       padding: "12px 16px",
                       margin: "12px 0",
                       borderRadius: "8px",
-                      background: `${aqiInfo.color}12`,
+                      background: `${panelInfo.color}12`,
                     }}
                   >
-                    <strong style={{ color: aqiInfo.color }}>
-                      {aqiInfo.label}
+                    <strong style={{ color: panelInfo.color }}>
+                      {panelInfo.label}
                     </strong>
 
-                    <p>{aqiInfo.description}</p>
+                    <p>{panelInfo.description}</p>
 
                     <div>
                       <strong>Эрүүл мэндийн зөвлөмж</strong>
-                      <p>{aqiInfo.advice}</p>
+                      <p>{panelInfo.advice}</p>
                     </div>
                   </div>
 
@@ -1235,6 +1118,25 @@ export default function AgaarchanarPage() {
                         {getStationId(selectedStationData) ?? "—"}
                       </strong>
                     </div>
+
+                    {metricCfg ? (
+                      <>
+                        <div>
+                          <span>Дундажлах хугацаа</span>
+                          <strong>{windowText}</strong>
+                        </div>
+
+                        <div>
+                          <span>Станцын нэгдсэн AQI</span>
+                          <strong>{aqi ?? "—"}</strong>
+                        </div>
+                      </>
+                    ) : (
+                      <div>
+                        <span>Тодорхойлогч бодис</span>
+                        <strong>{dominantLabel ?? "—"}</strong>
+                      </div>
+                    )}
 
                     <div>
                       <span>Хэмжилтийн огноо</span>
@@ -1251,346 +1153,371 @@ export default function AgaarchanarPage() {
                     </div>
                   </div>
 
+                  {metricCfg && metricVal === null && (
+                    <p className="aq-no-results">
+                      Энэ станцад {metricCfg.label} хэмжилт алга.
+                    </p>
+                  )}
+
                   {!selectedAir && (
                     <p className="aq-no-results">
                       Энэ станцын хэмжилтийн мэдээлэл алга.
                     </p>
                   )}
-
-                  <button
-                    type="button"
-                    className="aq-change-station"
-                    onClick={() => {
-                      setSearch("");
-
-                      document
-                        .querySelector(".aq-search-card")
-                        ?.scrollIntoView({
-                          behavior: "smooth",
-                          block: "start",
-                        });
-                    }}
-                  >
-                    Өөр станц сонгох
-                  </button>
                 </>
               )}
             </section>
           </aside>
         </div>
 
-        {/* СТАТИСТИК БА БОХИРДУУЛАГЧ БОДИС */}
-        <section className="aq-statistics-section">
-          <div className="aq-section-heading">
-            <div>
-              <h2>Агаарын чанарын тойм</h2>
-              <p>
-                Тооцоолж болох PM2.5, PM10 утгатай станцуудын
-                үзүүлэлт.
-              </p>
-            </div>
+       {/* =========================================
+    2. БОХИРДУУЛАГЧ БОДИСЫН ДЭЛГЭРЭНГҮЙ
+========================================= */}
+<section className="aq-pollutant-section">
+  <div className="aq-section-heading">
+    <div>
+      
 
-            <span className="aq-map-badge">
-              SUMMARY
-            </span>
-          </div>
+      <p>
+        Сонгосон станцын агаар бохирдуулагч бодисын хэмжилт.
+      </p>
+    </div>
 
-          <div className="aq-pollutant-detail">
-            <div className="aq-pollutant-table-title">
-              <div>
-                <h3>Бохирдуулагч бодисын дэлгэрэнгүй</h3>
+    <span className="aq-map-badge">
+      POLLUTANTS
+    </span>
+  </div>
 
-                <p>
-                  {selectedStationData
-                    ? `${String(
-                        asRecord(selectedStationData).ner ??
-                          "Сонгосон станц",
-                      )} станцын хэмжилт`
-                    : "Станц сонгоход тухайн станцын утгууд харагдана"}
-                </p>
-              </div>
+  <div className="aq-pollutant-detail">
+    <div className="aq-pollutant-table-title">
+      <div>
+        <h3>Бохирдуулагч бодисын үзүүлэлт</h3>
 
-              <span>6 ҮЗҮҮЛЭЛТ</span>
-            </div>
+        <p>
+          {selectedStationData
+            ? `${String(
+                asRecord(selectedStationData).ner ??
+                  "Сонгосон станц",
+              )} станцын хэмжилт`
+            : "Станц сонгоход тухайн станцын утгууд харагдана"}
+        </p>
+      </div>
 
-            <div className="aq-pollutant-grid">
-              {pollutants.map((pollutant, index) => {
-                const value = getNumber(
-                  selectedAir,
-                  pollutant.keys,
-                );
+      <span>6 ҮЗҮҮЛЭЛТ</span>
+    </div>
 
-                const maxValue =
-                  visualScale[pollutant.label] ?? 100;
+    <div className="aq-pollutant-grid">
+      {pollutants.map((pollutant, index) => {
+        const value = getNumber(
+          selectedAir,
+          pollutant.keys,
+        );
 
-                const meterWidth =
-                  value === null
-                    ? 0
-                    : Math.min(
-                        100,
-                        Math.max(
-                          0,
-                          (value / maxValue) * 100,
-                        ),
-                      );
+        const subIndex =
+          selectedResult?.items[pollutant.id]?.index ??
+          null;
 
-                return (
-                  <article
-                    className={`aq-pollutant-card aq-pollutant-card-${index + 1}`}
-                    key={pollutant.label}
-                  >
-                    <div className="aq-pollutant-card-head">
-                      <span className="aq-pollutant-symbol">
-                        {pollutant.label}
-                      </span>
+        const unit =
+          POLLUTANT_BY_ID[pollutant.id].unit;
 
-                      <span className="aq-pollutant-unit">
-                        {pollutant.unit}
-                      </span>
-                    </div>
+        const maxValue =
+          visualScale[pollutant.label] ?? 100;
 
-                    <h4>{pollutant.name}</h4>
+        const meterWidth =
+          value === null
+            ? 0
+            : Math.min(
+                100,
+                Math.max(
+                  0,
+                  (value / maxValue) * 100,
+                ),
+              );
 
-                    <div className="aq-pollutant-card-value">
-                      {formatValue(value)}
-                    </div>
-
-                    <p>{pollutant.description}</p>
-
-                    <div
-                      className="aq-pollutant-meter"
-                      role="img"
-                      aria-label={
-                        value === null
-                          ? `${pollutant.label}: мэдээлэл байхгүй`
-                          : `${pollutant.label}: дүрслэлийн хэмжүүр ${Math.round(meterWidth)} хувь`
-                      }
-                    >
-                      <span
-                        className="aq-pollutant-meter-fill"
-                        style={{
-                          width: `${meterWidth}%`,
-                        }}
-                      />
-                    </div>
-
-                    <div className="aq-pollutant-card-footer">
-                      <span>Хэмжилтийн утга</span>
-
-                      <strong>
-                        {value === null
-                          ? "Мэдээлэл алга"
-                          : "Бүртгэгдсэн"}
-                      </strong>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-
-            <p className="aq-pollutant-scale-note">
-              Хэмжүүрийн зурвас нь утгыг дүрслэх зориулалттай.
-              Энэ нь эрүүл мэндийн эрсдэлийн албан ёсны ангилал биш.
-            </p>
-          </div>
-
-          <div className="aq-stat-grid">
-            <article className="aq-stat-card aq-stat-aqi">
-              <span className="aq-stat-icon" aria-hidden="true">
-                ◉
+        return (
+          <article
+            className={`aq-pollutant-card aq-pollutant-card-${index + 1}`}
+            key={pollutant.label}
+          >
+            <div className="aq-pollutant-card-head">
+              <span className="aq-pollutant-symbol">
+                {pollutant.label}
               </span>
 
-              <span className="aq-stat-label">
-                Дундаж тооцоолсон индекс
+              <span className="aq-pollutant-unit">
+                {unit}
               </span>
+            </div>
+
+            <h4>{pollutant.name}</h4>
+
+            <div className="aq-pollutant-card-value">
+              {formatValue(value)}
+            </div>
+
+            <p>{pollutant.description}</p>
+
+            <div
+              className="aq-pollutant-meter"
+              role="img"
+              aria-label={
+                value === null
+                  ? `${pollutant.label}: мэдээлэл байхгүй`
+                  : `${pollutant.label}: дүрслэлийн хэмжүүр ${Math.round(meterWidth)} хувь`
+              }
+            >
+              <span
+                className="aq-pollutant-meter-fill"
+                style={{
+                  width: `${meterWidth}%`,
+                }}
+              />
+            </div>
+
+            <div className="aq-pollutant-card-footer">
+              <span>Дэд индекс</span>
 
               <strong>
-                {statistics.average === null
-                  ? "—"
-                  : Math.round(statistics.average)}
+                {subIndex === null
+                  ? "Мэдээлэл алга"
+                  : subIndex}
               </strong>
+            </div>
+          </article>
+        );
+      })}
+    </div>
 
-              <span className="aq-stat-status">
-                {statistics.measuredCount} станцын индекс
-              </span>
-            </article>
-
-            <article className="aq-stat-card">
-              <span className="aq-stat-icon" aria-hidden="true">
-                ⌖
-              </span>
-
-              <span className="aq-stat-label">
-                Индекстэй станц
-              </span>
-
-              <strong>{statistics.measuredCount}</strong>
-
-              <span className="aq-stat-status">
-                Нийт {stations.length} станцаас
-              </span>
-            </article>
-
-            <article className="aq-stat-card">
-              <span className="aq-stat-icon" aria-hidden="true">
-                ✓
-              </span>
-
-              <span className="aq-stat-label">
-                Бага индекс
-              </span>
-
-              <strong>{statistics.good}</strong>
-
-              <span className="aq-stat-status">
-                Тооцоолсон индекс 0–50
-              </span>
-            </article>
-
-            <article className="aq-stat-card">
-              <span className="aq-stat-icon" aria-hidden="true">
-                !
-              </span>
-
-              <span className="aq-stat-label">
-                Индекс 100-аас их
-              </span>
-
-              <strong>{statistics.high}</strong>
-
-              <span className="aq-stat-status">
-                Нэмэгдсэн индекс бүхий станц
-              </span>
-            </article>
-
-            <article className="aq-stat-card">
-              <span className="aq-stat-icon" aria-hidden="true">
-                ↑
-              </span>
-
-              <span className="aq-stat-label">
-                Хамгийн өндөр индекс
-              </span>
-
-              <strong>{statistics.worst?.aqi ?? "—"}</strong>
-
-              <span className="aq-stat-station-name">
-                {statistics.worst
-                  ? String(
-                      asRecord(
-                        statistics.worst.station,
-                      ).ner ?? "Мэдээлэл алга",
-                    )
-                  : "Мэдээлэл алга"}
-              </span>
-            </article>
-
-            <article className="aq-stat-card">
-              <span className="aq-stat-icon" aria-hidden="true">
-                ◷
-              </span>
-
-              <span className="aq-stat-label">
-                Хамгийн сүүлийн хэмжилт
-              </span>
-
-              <strong className="aq-stat-date">
-                {formatDate(statistics.newestDate)}
-              </strong>
-
-              <span className="aq-stat-status">
-                Хэмжилтийн огноогоор
-              </span>
-            </article>
-          </div>
-
-          <p className="aq-data-note">
-            <strong>Тооцооллын тайлбар:</strong> API-аас ирсэн
-            AQI утгыг өөр аргачлалын үр дүн байж болзошгүй тул
-            шууд ашиглахгүй. PM2.5 болон PM10-ын хэмжилтээс
-            жишиг хүлцэх агууламжид харьцуулан индекс тооцно.
-            Хэмжилтийн хугацаа, нэгж болон стандартын босгыг
-            баталгаажуулаагүй тул уг индексийг Монголын албан
-            ёсны AQI гэж хараахан баталгаажуулах боломжгүй.
-          </p>
-        </section>
-
-        {/* ИНДЕКСИЙН ТҮР ТАЙЛБАР */}
-       <section
-  className="chanar-guide-section"
-  id="health"
->
-  <span className="chanar-section-kicker">
-    AQI ТАЙЛБАР
-  </span>
-
-  <h2>Индексийг хэрхэн ойлгох вэ?</h2>
-
-  <p>
-    Доорх өнгө, ангилал нь одоогийн дэлгэцийн түр
-    дүрслэл юм. Монголын хүчинтэй албан ёсны ангиллын
-    босготой тулгаж баталгаажуулсны дараа эцэслэн хэрэглэнэ.
-  </p>
-
-  <div className="chanar-guide-grid">
-  {[
-    {
-      range: "0–50",
-      label: "Цэвэр",
-      color: "#16e900",
-      text: "Агаарын чанар сайн, эрүүл мэндэд сөрөг нөлөөгүй.",
-    },
-    {
-      range: "51–100",
-      label: "Хэвийн",
-      color: "#fff000",
-      text: "Агаарын чанар хэвийн түвшинд байна.",
-    },
-    {
-      range: "101–200",
-      label: "Бага бохирдолтой",
-      color: "#ff9200",
-      text: "Мэдрэмтгий бүлгийн хүмүүс болгоомжтой байна.",
-    },
-    {
-      range: "201–300",
-      label: "Бохирдолтой",
-      color: "#ff1010",
-      text: "Гадаа удаан хугацаагаар байхыг багасгана.",
-    },
-    {
-      range: "301–400",
-      label: "Их бохирдолтой",
-      color: "#963c9f",
-      text: "Эрүүл мэндэд сөрөг нөлөө үзүүлж болзошгүй.",
-    },
-    {
-      range: "401–500",
-      label: "Маш их бохирдолтой",
-      color: "#800020",
-      text: "Гадаах үйл ажиллагааг хязгаарлаж, эрүүл мэндээ хамгаална.",
-    },
-  ].map((item) => (
-    <article
-      className="chanar-guide-card"
-      key={item.range}
-    >
-      <span
-        className="chanar-guide-dot"
-        style={{
-          backgroundColor: item.color,
-        }}
-      />
-
-      <div>
-        <strong>{item.label}</strong>
-        <span>{item.range} индекс</span>
-        <p>{item.text}</p>
-      </div>
-    </article>
-  ))}
-</div>
+    <p className="aq-pollutant-scale-note">
+      Хэмжүүрийн зурвас нь сүүлийн хэмжилтийн утгыг
+      дүрслэх зориулалттай. Дэд индекс нь MNS4585:2025
+      стандартын хүснэгтээр (PM 24 цаг, CO, O₃ 8 цаг,
+      SO₂, NO₂ 1 цагийн дундаж) тооцогдсон.
+    </p>
+  </div>
 </section>
+
+     {/* =========================================
+    1. АГААРЫН ЧАНАРЫН ТОЙМ
+========================================= */}
+<section className="aq-statistics-section">
+  <div className="aq-section-heading">
+    <div>
+      <h2>Агаарын чанарын тойм</h2>
+      <p>
+        Индекс тооцоолох боломжтой станцуудын үзүүлэлт.
+      </p>
+    </div>
+
+    <span className="aq-map-badge">
+      SUMMARY
+    </span>
+  </div>
+
+  <div className="aq-stat-grid">
+    {/* Дундаж индекс */}
+    <article className="aq-stat-card aq-stat-aqi">
+      <span className="aq-stat-icon" aria-hidden="true">
+        ◉
+      </span>
+
+      <span className="aq-stat-label">
+        Дундаж индекс
+      </span>
+
+      <strong>
+        {statistics.average === null
+          ? "—"
+          : Math.round(statistics.average)}
+      </strong>
+
+      <span className="aq-stat-status">
+        {statistics.measuredCount} станцын индекс
+      </span>
+    </article>
+
+    {/* Индекстэй станц */}
+    <article className="aq-stat-card">
+      <span className="aq-stat-icon" aria-hidden="true">
+        ⌖
+      </span>
+
+      <span className="aq-stat-label">
+        Индекстэй станц
+      </span>
+
+      <strong>{statistics.measuredCount}</strong>
+
+      <span className="aq-stat-status">
+        Нийт {stations.length} станцаас
+      </span>
+    </article>
+
+    {/* Цэвэр түвшний станц */}
+    <article className="aq-stat-card">
+      <span className="aq-stat-icon" aria-hidden="true">
+        ✓
+      </span>
+
+      <span className="aq-stat-label">
+        Цэвэр түвшний станц
+      </span>
+
+      <strong>{statistics.good}</strong>
+
+      <span className="aq-stat-status">
+        Индекс 0–50
+      </span>
+    </article>
+
+    {/* Индекс 100-аас их */}
+    <article className="aq-stat-card">
+      <span className="aq-stat-icon" aria-hidden="true">
+        !
+      </span>
+
+      <span className="aq-stat-label">
+        Индекс 100-аас их
+      </span>
+
+      <strong>{statistics.high}</strong>
+
+      <span className="aq-stat-status">
+        Бохирдолтой түвшний станц
+      </span>
+    </article>
+
+    {/* Хамгийн өндөр индекс */}
+    <article className="aq-stat-card">
+      <span className="aq-stat-icon" aria-hidden="true">
+        ↑
+      </span>
+
+      <span className="aq-stat-label">
+        Хамгийн өндөр индекс
+      </span>
+
+      <strong>
+        {statistics.worst?.aqi ?? "—"}
+      </strong>
+
+      <span className="aq-stat-station-name">
+        {statistics.worst
+          ? String(
+              asRecord(statistics.worst.station).ner ??
+                "Мэдээлэл алга",
+            )
+          : "Мэдээлэл алга"}
+      </span>
+    </article>
+
+    {/* Хамгийн сүүлийн хэмжилт */}
+    <article className="aq-stat-card">
+      <span className="aq-stat-icon" aria-hidden="true">
+        ◷
+      </span>
+
+      <span className="aq-stat-label">
+        Хамгийн сүүлийн хэмжилт
+      </span>
+
+      <strong className="aq-stat-date">
+        {formatDate(statistics.newestDate)}
+      </strong>
+
+      <span className="aq-stat-status">
+        Хэмжилтийн огноогоор
+      </span>
+    </article>
+  </div>
+
+  <p className="aq-data-note">
+    <strong>Тооцооллын тайлбар:</strong> Индексийг
+    MNS4585:2025 стандартын breakpoint хүснэгтээр
+    бохирдуулагч бодис тус бүрээр шугаман интерполяцаар
+    тооцож, хамгийн өндөр дэд индексийг агаарын чанарын
+    индекс гэж авна. API-аас ирсэн AQI талбарыг
+    ашиглахгүй. 24 болон 8 цагийн дундаж гаргахад
+    хангалттай мөр (75%) байхгүй бол сүүлийн хэмжилтээр
+    тооцож болно.
+  </p>
+</section>
+
+
+
+
+        {/* ИНДЕКСИЙН ТАЙЛБАР */}
+        <section className="chanar-guide-section" id="health">
+          <span className="chanar-section-kicker">
+            AQI ТАЙЛБАР
+          </span>
+
+          <h2>Индексийг хэрхэн ойлгох вэ?</h2>
+
+          <p>
+            Ангилал, өнгө нь MNS4585:2025 стандартын агаарын
+            чанарын индексийн ангилалд тулгуурласан.
+          </p>
+
+          <div className="chanar-guide-grid">
+            {[
+              {
+                range: "0–50",
+                label: "Цэвэр",
+                color: "#16e900",
+                text: "Агаарын чанар сайн, эрүүл мэндэд сөрөг нөлөөгүй.",
+              },
+              {
+                range: "51–100",
+                label: "Хэвийн",
+                color: "#fff000",
+                text: "Агаарын чанар хэвийн түвшинд байна.",
+              },
+              {
+                range: "101–200",
+                label: "Бага бохирдолтой",
+                color: "#ff9200",
+                text: "Мэдрэмтгий бүлгийн хүмүүс болгоомжтой байна.",
+              },
+              {
+                range: "201–300",
+                label: "Бохирдолтой",
+                color: "#ff1010",
+                text: "Гадаа удаан хугацаагаар байхыг багасгана.",
+              },
+              {
+                range: "301–400",
+                label: "Их бохирдолтой",
+                color: "#963c9f",
+                text: "Эрүүл мэндэд сөрөг нөлөө үзүүлж болзошгүй.",
+              },
+              {
+                range: "401–500",
+                label: "Маш их бохирдолтой",
+                color: "#800020",
+                text: "Гадаа гарахаас зайлсхийж, эрүүл мэндээ хамгаалаарай.",
+              },
+            ].map((item) => (
+              <article
+                className="chanar-guide-card"
+                key={item.range}
+              >
+                <span
+                  className="chanar-guide-dot"
+                  style={{
+                    backgroundColor: item.color,
+                  }}
+                />
+
+                <div>
+                  <strong>{item.label}</strong>
+                  <span>{item.range} индекс</span>
+                  <p>{item.text}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
       </div>
     </main>
   );

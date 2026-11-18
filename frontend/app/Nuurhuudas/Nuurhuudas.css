@@ -1,68 +1,89 @@
 /* =====================================================
-   nuurhuudas.css — Нүүр хуудасны бүх стиль
+   nuurhuudas.css — Нүүр хуудасны бүх стиль (шинэчилсэн дизайн)
    Dark горим: html дээр .dark class эсвэл data-theme="dark"
+   Класс нэрс хуучинтай ижил — зөвхөн энэ файлыг солино.
    ===================================================== */
 
-/* ---------- Өнгөний хувьсагчид ---------- */
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
+
+/* ---------- Өнгө, радиус, сүүдэр ---------- */
 :root {
-  --np-page-bg: #f1f5f9;
-  --np-text: #0f172a;
-  --np-title: #0f172a;
-  --np-card-bg: #ffffff;
-  --np-card-border: #e2e8f0;
-  --np-card-shadow: 0 10px 15px -3px rgba(203, 213, 225, 0.5);
-  --np-tile-bg: #f8fafc;
-  --np-tile-border: #e2e8f0;
-  --np-nested-bg: #f1f5f9;
-  --np-muted: #475569;
-  --np-soft: #334155;
-  --np-faint: #64748b;
-  --np-eyebrow: #d97706;
-  --np-accent-bg: #fffbeb;
-  --np-accent-border: #f59e0b;
-  --np-orange: #ea580c;
-  --np-sky: #0284c7;
+  --np-font: "Manrope", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --np-r-lg: 1.5rem;
+  --np-r-md: 1rem;
+  --np-r-sm: 0.75rem;
+
+  --np-page-bg: #eaf1f8;
+  --np-page-glow: radial-gradient(60rem 28rem at 10% -10%, rgba(125, 195, 255, 0.35), transparent 60%),
+                  radial-gradient(48rem 24rem at 100% 0%, rgba(255, 214, 140, 0.30), transparent 60%);
+  --np-text: #08141f;
+  --np-title: #08141f;
+  --np-card-bg: rgba(255, 255, 255, 0.94);
+  --np-card-border: rgba(15, 40, 80, 0.12);
+  --np-card-shadow: 0 1px 2px rgba(15, 40, 80, 0.04), 0 12px 32px -12px rgba(15, 40, 80, 0.16);
+  --np-hero-bg: linear-gradient(160deg, #dff0ff 0%, #f4f9ff 55%, #fff4dc 130%);
+  --np-tile-bg: #eef3f9;
+  --np-tile-border: rgba(15, 40, 80, 0.14);
+  --np-nested-bg: rgba(255, 255, 255, 0.7);
+  --np-muted: #3d5066;
+  --np-soft: #22344a;
+  --np-faint: #4f6379;
+  --np-eyebrow: #9a4506;
+  --np-accent-bg: #ffecb8;
+  --np-accent-border: #f5a524;
+  --np-orange: #c2410c;
+  --np-sky: #0369a1;
   --np-drop-bg: #ffffff;
-  --np-drop-border: #cbd5e1;
-  --np-hover-bg: #fffbeb;
-  --np-chart-card-bg: #ffffff;
-  --np-chart-divider: #f1f5f9;
-  --np-empty-border: #cbd5e1;
+  --np-drop-border: rgba(15, 40, 80, 0.12);
+  --np-hover-bg: #eef5fc;
+  --np-chart-card-bg: rgba(255, 255, 255, 0.94);
+  --np-chart-divider: rgba(15, 40, 80, 0.08);
+  --np-empty-border: #c3d2e2;
 }
 
 .dark,
 :root[data-theme="dark"],
 [data-theme="dark"] {
-  --np-page-bg: #0a1128;
-  --np-text: #f1f5f9;
+  --np-page-bg: #070d1f;
+  --np-page-glow: radial-gradient(60rem 28rem at 10% -10%, rgba(56, 130, 246, 0.22), transparent 60%),
+                  radial-gradient(48rem 24rem at 100% 0%, rgba(251, 191, 36, 0.08), transparent 60%);
+  --np-text: #eaf0fa;
   --np-title: #ffffff;
-  --np-card-bg: #111d44;
-  --np-card-border: #26376f;
-  --np-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-  --np-tile-bg: #0d1736;
-  --np-tile-border: #2a3b7d;
-  --np-nested-bg: #111e43;
-  --np-muted: #94a3b8;
-  --np-soft: #cbd5e1;
-  --np-faint: #94a3b8;
+  --np-card-bg: rgba(17, 27, 58, 0.78);
+  --np-card-border: rgba(148, 170, 230, 0.24);
+  --np-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 40px -16px rgba(0, 0, 0, 0.55);
+  --np-hero-bg: linear-gradient(160deg, #15275a 0%, #101c44 60%, #2a2440 140%);
+  --np-tile-bg: rgba(10, 18, 44, 0.65);
+  --np-tile-border: rgba(148, 170, 230, 0.26);
+  --np-nested-bg: rgba(255, 255, 255, 0.05);
+  --np-muted: #b4c2dc;
+  --np-soft: #dbe4f4;
+  --np-faint: #a3b3d0;
   --np-eyebrow: #fcd34d;
-  --np-accent-bg: #26376f;
+  --np-accent-bg: rgba(252, 211, 77, 0.14);
   --np-accent-border: #fcd34d;
   --np-orange: #fdba74;
   --np-sky: #7dd3fc;
-  --np-drop-bg: #14224f;
-  --np-drop-border: #3a4c8f;
-  --np-hover-bg: #26376f;
-  --np-chart-card-bg: #101a38;
-  --np-chart-divider: #26385f;
+  --np-drop-bg: #13204b;
+  --np-drop-border: rgba(148, 170, 230, 0.25);
+  --np-hover-bg: rgba(125, 160, 255, 0.14);
+  --np-chart-card-bg: rgba(14, 23, 52, 0.8);
+  --np-chart-divider: rgba(148, 170, 230, 0.14);
   --np-empty-border: #34466d;
 }
 
 /* ---------- Хуудас ---------- */
 .np-page {
   min-height: 100vh;
-  background: var(--np-page-bg);
+  background: var(--np-page-glow), var(--np-page-bg);
+  background-attachment: fixed;
   color: var(--np-text);
+  font-size: 16px;
+  line-height: 1.5;
+  font-family: var(--np-font);
+  font-feature-settings: "tnum" 1;
+  -webkit-font-smoothing: antialiased;
   transition: background-color 0.2s, color 0.2s;
 }
 
@@ -70,46 +91,67 @@
   width: 100%;
   max-width: 80rem;
   margin: 0 auto;
-  padding: 1rem 0.75rem;
+  padding: 0.75rem 0.75rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.875rem;
 }
 
 /* ---------- Card ---------- */
 .np-card {
-  border-radius: 1rem;
+  border-radius: var(--np-r-lg);
   border: 1px solid var(--np-card-border);
   background: var(--np-card-bg);
-  padding: 1rem;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  padding: 0.875rem;
   box-shadow: var(--np-card-shadow);
 }
 
-.np-card-raised { position: relative; z-index: 30; }
+.np-card-raised {
+  position: relative;
+  z-index: 60;
+  overflow: visible;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
 .np-card-col { display: flex; min-width: 0; flex-direction: column; }
 .np-card-min { min-width: 0; }
 
+/* Одоогийн цаг агаарын карт — хуудасны гол анхаарал */
+.np-hero-grid > .np-card:first-child { background: var(--np-hero-bg); }
+
 /* ---------- Нийтлэг текст ---------- */
 .np-eyebrow {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: 0.875rem;
+  font-weight: 700;
   color: var(--np-eyebrow);
 }
 .np-eyebrow-mb { margin-bottom: 0.375rem; }
 
 .np-section-title {
-  margin-bottom: 1rem;
+  margin-bottom: 0.625rem;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
 }
 .np-section-title h2 {
-  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 1.0625rem;
   font-weight: 700;
+  letter-spacing: -0.015em;
   color: var(--np-title);
+}
+
+.np-section-title h2::before {
+  content: "";
+  width: 0.25rem;
+  height: 1rem;
+  border-radius: 9999px;
+  background: var(--np-accent-border);
 }
 
 .np-empty {
@@ -126,37 +168,41 @@
 @keyframes np-pulse { 50% { opacity: 0.5; } }
 
 /* ---------- 1. Байршил хайх ---------- */
-.np-search-row { display: flex; flex-direction: column; gap: 1rem; }
+.np-search-row { display: flex; flex-direction: column; gap: 0.625rem; }
 .np-search-box { position: relative; }
 
 .np-input-wrap { position: relative; }
 .np-input-icon {
   pointer-events: none;
   position: absolute;
-  left: 0.75rem;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--np-muted);
 }
 .np-input {
   width: 100%;
-  border-radius: 0.75rem;
+  border-radius: 9999px;
   border: 1px solid var(--np-tile-border);
   background: var(--np-tile-bg);
-  padding: 0.75rem 2.5rem;
-  font-size: 0.875rem;
+  padding: 0.5625rem 2.5rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
   color: var(--np-title);
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 .np-input::placeholder { color: var(--np-faint); }
-.np-input:focus { border-color: var(--np-accent-border); }
+.np-input:focus {
+  border-color: var(--np-accent-border);
+  box-shadow: 0 0 0 4px rgba(245, 165, 36, 0.18);
+}
 .np-input-clear {
   position: absolute;
-  right: 0.75rem;
+  right: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   line-height: 1;
   color: var(--np-muted);
   background: none;
@@ -170,25 +216,26 @@
   left: 0;
   right: 0;
   top: 100%;
-  z-index: 50;
+  z-index: 100;
   margin-top: 0.5rem;
   overflow: hidden;
-  border-radius: 0.75rem;
+  border-radius: var(--np-r-md);
   border: 1px solid var(--np-drop-border);
   background: var(--np-drop-bg);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 24px 48px -12px rgba(8, 20, 50, 0.35);
 }
 .np-dropdown-scroll { max-height: 18rem; overflow-y: auto; }
-.np-dropdown-empty { padding: 0.75rem; font-size: 0.875rem; color: var(--np-muted); }
+.np-dropdown-empty { padding: 0.875rem; font-size: 0.875rem; color: var(--np-muted); }
 .np-dropdown-item {
   display: flex;
   width: 100%;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.625rem 0.75rem;
+  padding: 0.6875rem 1rem;
   text-align: left;
-  font-size: 0.875rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
   color: inherit;
   background: transparent;
   border: 0;
@@ -197,7 +244,7 @@
 }
 .np-dropdown-item:hover,
 .np-dropdown-item-selected { background: var(--np-hover-bg); }
-.np-dropdown-area { font-size: 0.75rem; color: var(--np-muted); }
+.np-dropdown-area { font-size: 0.8125rem; color: var(--np-muted); }
 
 .np-strip-wrap { display: flex; min-width: 0; flex: 1; align-items: center; gap: 0.5rem; }
 .np-strip-arrow {
@@ -213,9 +260,10 @@
   color: inherit;
   font-size: 0.75rem;
   cursor: pointer;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, transform 0.15s;
 }
 .np-strip-arrow:hover { border-color: var(--np-accent-border); }
+.np-strip-arrow:active { transform: scale(0.94); }
 
 .np-strip {
   display: flex;
@@ -223,7 +271,7 @@
   flex: 1;
   gap: 0.5rem;
   overflow-x: auto;
-  padding-bottom: 0.25rem;
+  padding: 0.125rem 0.125rem 0.375rem;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
 }
@@ -231,65 +279,69 @@
 
 .np-strip-item {
   display: flex;
-  min-width: 92px;
+  min-width: 84px;
   flex-shrink: 0;
   scroll-snap-align: start;
   flex-direction: column;
   align-items: center;
-  border-radius: 0.75rem;
-  border: 1px solid var(--np-tile-border);
+  border-radius: var(--np-r-md);
+  border: 1px solid transparent;
   background: var(--np-tile-bg);
-  padding: 0.5rem 0.75rem;
+  padding: 0.3125rem 0.625rem;
+  font-family: inherit;
   font-size: 0.75rem;
   color: inherit;
   cursor: pointer;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
 }
-.np-strip-item:hover { border-color: #94a3b8; }
+.np-strip-item:hover { border-color: var(--np-faint); }
 .np-strip-item-selected,
 .np-strip-item-selected:hover {
   border-color: var(--np-accent-border);
   background: var(--np-accent-bg);
 }
-.np-strip-name { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--np-soft); }
-.np-strip-icon { font-size: 1.25rem; }
-.np-strip-temp { font-size: 0.875rem; color: var(--np-title); }
+.np-strip-name { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.8125rem; color: var(--np-soft); }
+.np-strip-item-selected .np-strip-name { font-weight: 700; color: var(--np-title); }
+.np-strip-icon { font-size: 1.125rem; }
+.np-strip-temp { font-size: 1rem; font-weight: 700; color: var(--np-title); }
 
 /* ---------- Анхааруулга ---------- */
 .np-alert {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  border-radius: 1rem;
-  border: 1px solid rgba(251, 191, 36, 0.4);
-  background: rgba(251, 191, 36, 0.1);
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
+  border-radius: var(--np-r-md);
+  border: 1px solid rgba(245, 165, 36, 0.45);
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.18), rgba(251, 191, 36, 0.06));
+  padding: 0.8125rem 1.125rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
   color: inherit;
   text-decoration: none;
   transition: background 0.15s;
 }
-.np-alert:hover { background: rgba(251, 191, 36, 0.2); }
+.np-alert:hover { background: linear-gradient(90deg, rgba(251, 191, 36, 0.28), rgba(251, 191, 36, 0.1)); }
 .np-alert-icon { font-size: 1.25rem; }
 .np-alert-text { flex: 1; }
 .np-alert-arrow { color: var(--np-eyebrow); }
 
 /* ---------- 2. Одоогийн цаг агаар + газрын зураг ---------- */
-.np-hero-grid { display: grid; grid-template-columns: 1fr; align-items: stretch; gap: 1.25rem; }
+.np-hero-grid { display: grid; grid-template-columns: 1fr; align-items: stretch; gap: 0.875rem; }
 
 .np-current-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
 .np-current-head-text { min-width: 0; }
-.np-station-title { margin-top: 0.25rem; overflow-wrap: anywhere; font-size: 1.25rem; font-weight: 700; color: var(--np-title); }
-.np-station-sub { font-size: 0.875rem; color: var(--np-muted); }
+.np-station-title { margin-top: 0.125rem; overflow-wrap: anywhere; font-size: 1.1875rem; font-weight: 800; letter-spacing: -0.02em; color: var(--np-title); }
+.np-station-sub { font-size: 0.9375rem; color: var(--np-muted); }
 .np-info-link {
   display: flex;
-  height: 2rem;
-  width: 2rem;
+  height: 2.125rem;
+  width: 2.125rem;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
   border: 1px solid var(--np-drop-border);
+  background: var(--np-nested-bg);
   font-size: 0.875rem;
   font-weight: 700;
   color: var(--np-soft);
@@ -298,167 +350,184 @@
 }
 .np-info-link:hover { border-color: var(--np-accent-border); color: var(--np-eyebrow); }
 
-.np-temp-row { margin-top: 1rem; display: flex; align-items: center; gap: 1rem; }
-.np-temp-icon { flex-shrink: 0; font-size: 3.75rem; }
+.np-temp-row { margin-top: 0.625rem; display: flex; align-items: center; gap: 1rem; }
+.np-temp-icon { flex-shrink: 0; font-size: 2.75rem; filter: drop-shadow(0 8px 14px rgba(15, 40, 80, 0.18)); }
 .np-temp-block { min-width: 0; }
-.np-temp-value { font-size: 3rem; font-weight: 800; line-height: 1; color: var(--np-title); }
-.np-temp-cond { margin-top: 0.5rem; overflow-wrap: anywhere; font-size: 0.875rem; color: var(--np-soft); }
+.np-temp-value {
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  color: var(--np-title);
+}
+.np-temp-cond { margin-top: 0.25rem; overflow-wrap: anywhere; font-size: 0.9375rem; font-weight: 500; color: var(--np-soft); }
 
 .np-minmax {
-  margin-top: 1rem;
+  margin-top: 0.625rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1.25rem;
   border-bottom: 1px solid var(--np-tile-border);
-  padding-bottom: 1rem;
-  font-size: 0.875rem;
+  padding-bottom: 0.625rem;
+  font-size: 0.9375rem;
 }
 .np-minmax span { color: var(--np-muted); }
-.np-max { color: var(--np-orange); }
-.np-min { color: var(--np-sky); }
+.np-max { color: var(--np-orange); font-weight: 700; }
+.np-min { color: var(--np-sky); font-weight: 700; }
 
-.np-mini-grid { margin-top: 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-.np-mini { border-radius: 0.75rem; background: var(--np-nested-bg); padding: 0.75rem; }
-.np-mini-label { font-size: 0.75rem; color: var(--np-faint); }
-.np-mini-value { margin-top: 0.25rem; font-size: 1.125rem; font-weight: 700; color: var(--np-title); }
-.np-mini-note { margin-top: 0.25rem; font-size: 0.75rem; color: var(--np-faint); }
-.np-updated { margin-top: 1rem; font-size: 0.75rem; color: var(--np-faint); }
+.np-mini-grid { margin-top: 0.625rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+.np-mini { border-radius: var(--np-r-sm); background: var(--np-nested-bg); padding: 0.5rem 0.75rem; }
+.np-mini-label { font-size: 0.8125rem; font-weight: 600; color: var(--np-faint); }
+.np-mini-value { margin-top: 0.125rem; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; color: var(--np-title); }
+.np-mini-note { margin-top: 0.25rem; font-size: 0.8125rem; color: var(--np-faint); }
+.np-updated { margin-top: 0.5rem; font-size: 0.8125rem; color: var(--np-faint); }
 
 .np-map-box {
   position: relative;
-  margin-top: 0.75rem;
-  min-height: 420px;
+  margin-top: 0.5rem;
+  min-height: 300px;
   flex: 1;
   overflow: hidden;
-  border-radius: 0.75rem;
+  border-radius: var(--np-r-md);
   border: 1px solid var(--np-tile-border);
   background: var(--np-tile-bg);
 }
 .np-map-inner { position: absolute; inset: 0; }
 
 /* ---------- Дэлгэрэнгүй мэдээлэл ---------- */
-.np-details-card { margin-top: 1.25rem; min-width: 0; }
-.np-details-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-.np-tile { border-radius: 0.75rem; border: 1px solid var(--np-tile-border); background: var(--np-tile-bg); padding: 0.75rem; }
-.np-tile-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--np-muted); }
+.np-details-card { margin-top: 0.875rem; min-width: 0; }
+.np-details-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.625rem; }
+.np-tile { border-radius: var(--np-r-md); border: 1px solid var(--np-tile-border); background: var(--np-tile-bg); padding: 0.875rem; }
+.np-tile-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; font-weight: 600; color: var(--np-muted); }
 .np-tile-icon { font-size: 1rem; }
-.np-tile-value { margin-top: 0.25rem; font-size: 1.125rem; font-weight: 700; color: var(--np-title); }
-.np-tile-note { font-size: 0.75rem; color: var(--np-muted); }
-.np-tile-extra { font-size: 0.75rem; color: var(--np-soft); }
+.np-tile-value { margin-top: 0.375rem; font-size: 1.3125rem; font-weight: 700; letter-spacing: -0.015em; color: var(--np-title); }
+.np-tile-note { font-size: 0.8125rem; color: var(--np-muted); }
+.np-tile-extra { font-size: 0.8125rem; color: var(--np-soft); }
 
 /* ---------- 3. Цаг тутмын ---------- */
 .np-pill {
   border-radius: 9999px;
   background: var(--np-tile-bg);
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
+  padding: 0.3125rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
   color: var(--np-soft);
 }
-.np-hourly-row { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; }
+.np-hourly-row { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: thin; }
 .np-hour {
   display: flex;
-  min-width: 78px;
+  min-width: 76px;
   flex-shrink: 0;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--np-tile-border);
+  gap: 0.125rem;
+  border-radius: var(--np-r-md);
+  border: 1px solid transparent;
   background: var(--np-tile-bg);
-  padding: 0.75rem 0.5rem;
+  padding: 0.5rem 0.375rem;
   text-align: center;
 }
-.np-hour-now { border-color: var(--np-accent-border); background: var(--np-accent-bg); }
-.np-hour-time { font-size: 0.875rem; font-weight: 700; color: var(--np-title); }
-.np-hour-day { height: 1rem; font-size: 10px; color: var(--np-muted); }
-.np-hour-icon { font-size: 1.5rem; }
-.np-hour-temp { font-size: 1rem; color: var(--np-title); }
-.np-hour-hum { font-size: 11px; color: var(--np-sky); }
+.np-hour-now {
+  border-color: var(--np-accent-border);
+  background: var(--np-accent-bg);
+  box-shadow: 0 0 0 3px rgba(245, 165, 36, 0.28);
+}
+.np-hour-time { font-size: 0.9375rem; font-weight: 700; color: var(--np-title); }
+.np-hour-day { height: 1rem; font-size: 0.75rem; color: var(--np-muted); }
+.np-hour-icon { font-size: 1.25rem; }
+.np-hour-temp { white-space: nowrap; font-size: 1rem; font-weight: 700; color: var(--np-title); }
+.np-hour-hum { font-size: 0.8125rem; font-weight: 600; color: var(--np-sky); }
 .np-hour-cond {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 2rem;
-  font-size: 10px;
-  line-height: 1rem;
+  min-height: 2.25rem;
+  font-size: 0.6875rem;
+  line-height: 1.125rem;
   color: var(--np-muted);
 }
 
 /* ---------- 4. 7 хоногийн урьдчилсан мэдээ ---------- */
 .np-section-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
-.np-forecast-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 0.375rem; }
+.np-forecast-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
 .np-more-btn {
-  border-radius: 0.5rem;
-  background: #fcd34d;
-  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  background: var(--np-title);
+  padding: 0.4375rem 0.9375rem;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #0d1530;
+  color: var(--np-card-bg);
   text-decoration: none;
-  transition: background 0.15s;
+  transition: opacity 0.15s, transform 0.15s;
 }
-.np-more-btn:hover { background: #fde68a; }
-.np-legend { display: flex; gap: 0.75rem; font-size: 0.75rem; color: var(--np-muted); }
+.dark .np-more-btn, [data-theme="dark"] .np-more-btn { background: #fcd34d; color: #0d1530; }
+.np-more-btn:hover { opacity: 0.88; }
+.np-more-btn:active { transform: scale(0.97); }
+.np-legend { display: flex; gap: 0.875rem; font-size: 0.8125rem; font-weight: 600; color: var(--np-muted); }
 .np-legend span { display: flex; align-items: center; gap: 0.375rem; }
 .np-legend-dot { display: inline-block; height: 0.625rem; width: 0.625rem; border-radius: 9999px; }
 .np-legend-orange { background: #fb923c; }
 .np-legend-sky { background: #38bdf8; }
 
-.np-daily-scroll { width: 100%; overflow-x: auto; padding-bottom: 0.25rem; }
-.np-daily-inner { min-width: 640px; }
-.np-daily-grid { display: grid; gap: 0.5rem; }
+.np-daily-scroll { width: 100%; overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: thin; }
+.np-daily-inner { min-width: 620px; }
+.np-daily-grid { display: grid; grid-template-columns: repeat(7, minmax(80px, 1fr)); gap: 0.5rem; }
 .np-day {
   display: flex;
   min-width: 0;
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--np-tile-border);
+  border-radius: var(--np-r-md);
+  border: 1px solid transparent;
   background: var(--np-tile-bg);
-  padding: 1rem 0.5rem;
+  padding: 0.625rem 0.375rem;
   text-align: center;
 }
-.np-day-today { border-color: var(--np-accent-border); background: var(--np-accent-bg); }
-.np-day-name { font-size: 0.875rem; color: var(--np-title); }
+.np-day-today {
+  border-color: var(--np-accent-border);
+  background: var(--np-accent-bg);
+  box-shadow: 0 0 0 3px rgba(245, 165, 36, 0.28);
+}
+.np-day-name { font-size: 0.9375rem; font-weight: 700; color: var(--np-title); }
 .np-day-date { font-size: 0.75rem; color: var(--np-muted); }
-.np-day-icon { margin: 0.5rem 0; font-size: 1.875rem; }
+.np-day-icon { margin: 0.25rem 0; font-size: 1.75rem; }
 .np-day-cond {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 2rem;
+  min-height: 2.25rem;
   font-size: 0.75rem;
-  line-height: 1rem;
+  line-height: 1.125rem;
   color: var(--np-soft);
 }
-.np-day-temps { margin-top: 0.5rem; font-size: 0.875rem; font-weight: 700; }
+.np-day-temps { margin-top: 0.25rem; white-space: nowrap; font-size: 0.9375rem; font-weight: 700; }
 .np-slash { color: var(--np-faint); }
 
 /* ---------- Температурын SVG график ---------- */
 .np-svg-chart { margin-top: 0.5rem; width: 100%; }
 .np-svg-zero-line { stroke: #64748b; }
-.np-svg-zero-label { fill: var(--np-faint); font-size: 11px; }
-.np-svg-grid-line { stroke: var(--np-card-border); }
-.np-svg-line-max { fill: none; stroke: #fb923c; }
-.np-svg-line-min { fill: none; stroke: #38bdf8; }
+.np-svg-zero-label { fill: var(--np-faint); font-size: 12px; }
+.np-svg-grid-line { stroke: var(--np-chart-divider); }
+.np-svg-line-max { fill: none; stroke: #fb923c; stroke-linecap: round; stroke-linejoin: round; }
+.np-svg-line-min { fill: none; stroke: #38bdf8; stroke-linecap: round; stroke-linejoin: round; }
 .np-svg-dot-max { fill: #fb923c; stroke: var(--np-card-bg); }
 .np-svg-dot-min { fill: #38bdf8; stroke: var(--np-card-bg); }
-.np-svg-label { font-size: 14px; font-weight: 700; }
+.np-svg-label { font-size: 15px; font-weight: 700; }
 .np-svg-label-max { fill: var(--np-orange); }
 .np-svg-label-min { fill: var(--np-sky); }
 
 /* ---------- Хур тунадасны энгийн график ---------- */
 .forecast-chart-card {
-  border-radius: 1rem;
+  border-radius: var(--np-r-lg);
   border: 1px solid var(--np-card-border);
   background: var(--np-card-bg);
   padding: 1.25rem;
   box-shadow: var(--np-card-shadow);
 }
-.forecast-chart-card h2 { font-size: 1.125rem; font-weight: 700; color: var(--np-title); }
+.forecast-chart-card h2 { font-size: 1.125rem; font-weight: 700; letter-spacing: -0.015em; color: var(--np-title); }
 .forecast-chart-card p { margin: 0.25rem 0 1rem; font-size: 0.875rem; color: var(--np-muted); }
 
 /* ---------- Хур тунадас / Салхи — том график картууд ---------- */
@@ -469,16 +538,17 @@
   min-width: 0;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 1.5rem;
-  border: 1px solid #e0f2fe;
+  border-radius: var(--np-r-lg);
+  border: 1px solid var(--np-card-border);
   background: var(--np-chart-card-bg);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   padding: 1.25rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--np-card-shadow);
   transition: box-shadow 0.2s;
 }
-.np-chart-card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.12); }
-.np-chart-card-orange { border-color: #ffedd5; }
-.dark .np-chart-card, [data-theme="dark"] .np-chart-card { border-color: #26385f; }
+.np-chart-card:hover { box-shadow: 0 1px 2px rgba(15, 40, 80, 0.05), 0 18px 40px -14px rgba(15, 40, 80, 0.24); }
+.np-chart-card-orange { border-color: rgba(251, 146, 60, 0.28); }
 
 .np-chart-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
 .np-chart-head-left { display: flex; min-width: 0; align-items: center; gap: 0.75rem; }
@@ -489,37 +559,37 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 1rem;
+  border-radius: var(--np-r-md);
   font-size: 1.5rem;
-  background: #e0f2fe;
+  background: #dcefff;
 }
-.np-chart-icon-orange { background: #ffedd5; }
+.np-chart-icon-orange { background: #ffe8d1; }
 .dark .np-chart-icon { background: rgba(56, 189, 248, 0.15); }
 .dark .np-chart-icon-orange { background: rgba(251, 146, 60, 0.15); }
-.np-chart-title { font-size: 1.125rem; font-weight: 700; color: var(--np-title); }
-.np-chart-sub { margin-top: 0.25rem; font-size: 0.875rem; color: var(--np-faint); }
+.np-chart-title { font-size: 1.125rem; font-weight: 700; letter-spacing: -0.015em; color: var(--np-title); }
+.np-chart-sub { margin-top: 0.25rem; font-size: 0.9375rem; color: var(--np-faint); }
 
 .np-unit {
-  border-radius: 0.75rem;
-  padding: 0.5rem 0.75rem;
+  border-radius: 9999px;
+  padding: 0.375rem 0.875rem;
   font-size: 0.875rem;
   font-weight: 700;
-  background: #f0f9ff;
+  background: #e3f2ff;
   color: #0369a1;
 }
-.np-unit-orange { background: #fff7ed; color: #c2410c; }
-.dark .np-unit { background: rgba(56, 189, 248, 0.1); color: #7dd3fc; }
-.dark .np-unit-orange { background: rgba(251, 146, 60, 0.1); color: #fdba74; }
+.np-unit-orange { background: #ffefdd; color: #c2410c; }
+.dark .np-unit { background: rgba(56, 189, 248, 0.12); color: #7dd3fc; }
+.dark .np-unit-orange { background: rgba(251, 146, 60, 0.12); color: #fdba74; }
 
-.np-chart-note { margin-top: 1.25rem; border-radius: 1rem; padding: 1rem; background: linear-gradient(to right, #f0f9ff, #ecfeff); }
-.np-chart-note-orange { background: linear-gradient(to right, #fff7ed, #fffbeb); }
+.np-chart-note { margin-top: 1.25rem; border-radius: var(--np-r-md); padding: 1rem; background: linear-gradient(to right, #eaf5ff, #e9fbfd); }
+.np-chart-note-orange { background: linear-gradient(to right, #fff1e3, #fff8e6); }
 .dark .np-chart-note { background: linear-gradient(to right, rgba(56, 189, 248, 0.1), rgba(34, 211, 238, 0.05)); }
 .dark .np-chart-note-orange { background: linear-gradient(to right, rgba(251, 146, 60, 0.1), rgba(251, 191, 36, 0.05)); }
 .np-chart-note-row { display: flex; align-items: center; gap: 0.5rem; }
 .np-chart-note-dot { height: 0.625rem; width: 0.625rem; border-radius: 9999px; background: #0ea5e9; }
 .np-chart-note-dot-orange { background: #f97316; }
-.np-chart-note-label { font-size: 0.875rem; font-weight: 500; color: var(--np-muted); }
-.np-chart-note-text { margin-top: 0.5rem; font-size: 0.75rem; line-height: 1.25rem; color: var(--np-faint); }
+.np-chart-note-label { font-size: 0.9375rem; font-weight: 600; color: var(--np-muted); }
+.np-chart-note-text { margin-top: 0.5rem; font-size: 0.8125rem; line-height: 1.375rem; color: var(--np-faint); }
 
 .np-chart-body { margin-top: 1.25rem; height: 280px; width: 100%; min-width: 0; }
 .np-chart-empty {
@@ -527,7 +597,7 @@
   height: 100%;
   align-items: center;
   justify-content: center;
-  border-radius: 1rem;
+  border-radius: var(--np-r-md);
   border: 1px dashed var(--np-empty-border);
   font-size: 0.875rem;
   color: var(--np-faint);
@@ -535,24 +605,35 @@
 .np-chart-foot { margin-top: auto; border-top: 1px solid var(--np-chart-divider); padding-top: 1rem; }
 .np-chart-foot-row { display: flex; align-items: flex-start; gap: 0.5rem; }
 .np-chart-foot-icon { font-size: 1rem; }
-.np-chart-foot-text { font-size: 0.75rem; line-height: 1.25rem; color: var(--np-faint); }
+.np-chart-foot-text { font-size: 0.8125rem; line-height: 1.375rem; color: var(--np-faint); }
+
+/* ---------- Хүртээмж ---------- */
+.np-page a:focus-visible,
+.np-page button:focus-visible,
+.np-input:focus-visible {
+  outline: 2px solid var(--np-accent-border);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .np-page * { animation: none !important; transition: none !important; }
+}
 
 /* ---------- Responsive ---------- */
 @media (min-width: 640px) {
-  .np-main { padding: 1.5rem 1.25rem; }
-  .np-card { padding: 1.25rem; }
-  .np-section-title h2 { font-size: 1.25rem; }
+  .np-main { padding: 1rem 1.25rem 1.5rem; }
+  .np-card { padding: 1rem; }
+  .np-section-title h2 { font-size: 1.125rem; }
   .np-strip-arrow { display: flex; }
-  .np-station-title { font-size: 1.5rem; }
-  .np-temp-icon { font-size: 4.5rem; }
-  .np-temp-value { font-size: 3.75rem; }
+  .np-station-title { font-size: 1.25rem; }
+  .np-temp-icon { font-size: 3.25rem; }
+  .np-temp-value { font-size: 3.25rem; }
   .np-details-grid { grid-template-columns: repeat(3, 1fr); }
-  .np-tile-value { font-size: 1.25rem; }
+  .np-tile-value { font-size: 1.3125rem; }
   .np-chart-card { padding: 1.5rem; }
 }
 
 @media (min-width: 1024px) {
-  .np-main { gap: 1.5rem; }
+  .np-main { gap: 1rem; }
   .np-search-row { flex-direction: row; align-items: center; }
   .np-search-box { width: 20rem; }
   .np-hero-grid,
@@ -566,3 +647,5 @@
 @media (min-width: 1280px) {
   .np-charts-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+

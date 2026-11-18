@@ -15,18 +15,14 @@
 
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 9999;
     width: 100%;
+    margin: 0;
     color: var(--ag-text);
     background: var(--ag-bg);
     border-bottom: 1px solid var(--ag-border);
     font-family: Arial, Helvetica, sans-serif;
-    transition:
-        color 0.25s ease,
-        background-color 0.25s ease,
-        border-color 0.25s ease;
 }
-
 /* =========================================
    DARK THEME
 ========================================= */
