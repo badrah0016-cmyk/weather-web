@@ -131,14 +131,19 @@ interface AirQuality {
 }
 
 interface AlertItem {
-    title: ReactNode;
-    description: ReactNode;
+    title?: ReactNode;
+    description?: ReactNode;
     id?: string | number;
     garchig?: string | null;
     tailbar?: string | null;
     hundrel?: string | null;
     turul?: string | null;
-    idevhtei?: boolean | number | string;
+    idevhtei?: boolean | number | string | null;
+    // Сэрэмжлүүлэг аль станцад хамаарахыг заах дугаар
+    stants_dugaar?: Num;
+    stantsDugaar?: Num;
+    station_id?: Num;
+    stationId?: Num;
 }
 
 interface StationNow {
@@ -1584,15 +1589,30 @@ const hourlyUv = hourlyNext24
         return [{ time, uv }];
     });
 
+    // Зөвхөн сонгосон станцад хамаарах, идэвхтэй сэрэмжлүүлгийг харуулна.
+    // Станцын дугааргүй мөрийг бүх станцад хамааруулж үзэхгүй.
     const activeAlerts = alerts.filter((item) => {
-        const value = item.idevhtei;
+        const activeValue = item.idevhtei;
+        const isInactive =
+            activeValue === false ||
+            activeValue === 0 ||
+            activeValue === "0" ||
+            (typeof activeValue === "string" &&
+                activeValue.toLowerCase() === "false");
 
-        if (value === false || value === 0 || value === "0") return false;
-        if (typeof value === "string" && value.toLowerCase() === "false") {
-            return false;
-        }
+        if (isInactive) return false;
 
-        return true;
+        const alertStationId =
+            item.stants_dugaar ??
+            item.stantsDugaar ??
+            item.station_id ??
+            item.stationId;
+
+        return (
+            alertStationId !== null &&
+            alertStationId !== undefined &&
+            Number(alertStationId) === Number(stationId)
+        );
     });
 
     const stationLabel =
@@ -1777,18 +1797,40 @@ const hourlyUv = hourlyNext24
 
                
 
-             {/* Идэвхтэй анхааруулга */}
+                {/* Сонгосон станцад бүртгэлтэй сэрэмжлүүлэг байвал л харуулна */}
+                {activeAlerts.length > 0 && (
+                    <section
+                        className="np-alert-list"
+                        aria-label={`${stationLabel} станцын цаг агаарын сэрэмжлүүлэг`}
+                        style={{ margin: "0 0 20px", display: "grid", gap: 10 }}
+                    >
+                        {activeAlerts.map((item, index) => (
+                            <article
+                                key={item.id ?? `${stationId}-alert-${index}`}
+                                style={{
+                                    padding: "14px 18px",
+                                    border: "1px solid #f59e0b",
+                                    borderLeft: "5px solid #f59e0b",
+                                    borderRadius: 12,
+                                    background: "rgba(245, 158, 11, 0.10)",
+                                }}
+                            >
+                                <p style={{ margin: "0 0 5px", fontWeight: 700 }}>
+                                    ⚠️ {item.garchig || item.title || "Цаг агаарын сэрэмжлүүлэг"}
+                                </p>
+                                {(item.tailbar || item.description || item.hundrel) && (
+                                    <p style={{ margin: 0, lineHeight: 1.6 }}>
+                                        {item.tailbar || item.description || item.hundrel}
+                                    </p>
+                                )}
+                                <p style={{ margin: "7px 0 0", fontSize: 12, opacity: 0.75 }}>
+                                    {stationLabel} · Станц {stationId}
+                                </p>
+                            </article>
+                        ))}
+                    </section>
+                )}
 
-                    {activeAlerts.length > 0 && (
-                        <div className="np-alerts">
-                            {activeAlerts.map((alert) => (
-                                <div key={alert.id} className="np-alert">
-                                    <p className="np-alert-title">{alert.title}</p>
-                                    <p className="np-alert-description">{alert.description}</p>
-                                </div>
-                            ))}
-                        </div>
-                    )}
                 {/* =====================================================
                     ОДООГИЙН ЦАГ АГААР + ГАЗРЫН ЗУРАГ
                 ===================================================== */}

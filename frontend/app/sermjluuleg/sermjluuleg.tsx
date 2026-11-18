@@ -4,33 +4,52 @@ import { useEffect, useMemo, useState } from "react";
 import "./seremjluuleg.css";
 
 interface AlertItem {
-  id?: number | string;
+    id?: string | number;
 
-  garchig?: string;
-  tailbar?: string;
-  hundrel?: string;
-  turul?: string;
-  idevhtei?: boolean | number | string;
+    // API-аас ирж болох гарчиг, тайлбар
+    title?: unknown;
+    description?: unknown;
+    garchig?: unknown;
+    tailbar?: unknown;
+    hundrel?: unknown;
+    turul?: unknown;
+    severity?: unknown;
+    idevhtei?: boolean | number | string | null;
 
-  aimag?: string;
-  nuluuluh_bus?: string;
-  hamaarah_bus?: string;
-  bairshil?: string;
-  location?: string;
-  region?: string;
-  area?: string;
-  gazar?: string;
+    // Станц болон байршлын талбарууд
+    stants_dugaar?: string | number | null;
+    stantsDugaar?: string | number | null;
+    station_id?: string | number | null;
+    stationId?: string | number | null;
+    station_name?: unknown;
+    ner?: unknown;
+    aimag?: unknown;
+    sum?: unknown;
+    bairshil?: unknown;
+    location?: unknown;
+    location_name?: unknown;
 
-  severity?: string;
-  title?: string;
-  description?: string;
+    // Нөлөөлөх бүсийн өөр нэршлүүд
+    nuluuluh_bus?: unknown;
+    hamaarah_bus?: unknown;
+    region?: unknown;
+    area?: unknown;
+    gazar?: unknown;
+    nuluuluhBus?: unknown;
+    hamaarahBus?: unknown;
+    nuluuluh_busiin_ner?: unknown;
+    affected_area?: unknown;
+    affected_region?: unknown;
+    affectedArea?: unknown;
+    affectedRegion?: unknown;
 
-  shinechilsen_ognoo?: string;
-  ehleh_ognoo?: string;
-  duusah_ognoo?: string;
-  ognoo?: string;
+    // Огнооны талбарууд
+    ehleh_ognoo?: unknown;
+    duusah_ognoo?: unknown;
+    shinechilsen_ognoo?: unknown;
+    ognoo?: unknown;
 
-  [key: string]: unknown;
+    [key: string]: unknown;
 }
 
 interface Props {

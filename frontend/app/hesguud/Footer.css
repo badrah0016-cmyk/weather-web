@@ -1,216 +1,471 @@
+
+/* =========================================
+   WEATHER MN — MODERN RESPONSIVE FOOTER
+   HEADER-ТЭЙ ИЖИЛ ЗҮҮН ЗАХЫН БАЙРЛАЛ
+========================================= */
+
 .weather-footer {
+    --footer-bg: #172235;
+    --footer-title: #ffffff;
+    --footer-text: #aab5c5;
+    --footer-muted: #8592a5;
+    --footer-border: rgba(255, 255, 255, 0.10);
+    --footer-accent: #65b2f0;
+    --footer-hover: #ffffff;
+
     width: 100%;
+    margin-top: auto;
 
-    background: #172235;
+    box-sizing: border-box;
 
-    color: #ffffff;
+    background: var(--footer-bg);
+    color: var(--footer-text);
+
+    border-top: 1px solid var(--footer-border);
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease;
 }
 
-/* CONTAINER */
+.weather-footer *,
+.weather-footer *::before,
+.weather-footer *::after {
+    box-sizing: border-box;
+}
+
+/* =========================================
+   LIGHT MODE
+========================================= */
+
+:root[data-theme="light"] .weather-footer {
+    --footer-bg: #ffffff;
+    --footer-title: #172033;
+    --footer-text: #64748b;
+    --footer-muted: #94a3b8;
+    --footer-border: #e2e8f0;
+    --footer-accent: #2563eb;
+    --footer-hover: #2563eb;
+
+    box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.035);
+}
+
+/* =========================================
+   DARK MODE
+========================================= */
+
+:root[data-theme="dark"] .weather-footer {
+    --footer-bg: #172235;
+    --footer-title: #ffffff;
+    --footer-text: #aab5c5;
+    --footer-muted: #8592a5;
+    --footer-border: rgba(255, 255, 255, 0.10);
+    --footer-accent: #65b2f0;
+    --footer-hover: #ffffff;
+}
+
+/* =========================================
+   MAIN CONTAINER
+   HEADER-TOP-ТЭЙ ИЖИЛ ХЭМЖЭЭ
+========================================= */
 
 .weather-footer-container {
-    width: 92%;
-    max-width: 1250px;
+    width: 100%;
+    max-width: 1440px;
 
     margin: 0 auto;
 
-    padding: 45px 0;
+    padding: 42px 36px 35px;
 
     display: grid;
 
     grid-template-columns:
         1.5fr
         1fr
-        1fr
-        1.5fr;
+        1.2fr
+        1.4fr;
 
-    gap: 50px;
+    gap: 40px;
 }
 
-/* BRAND */
+/* =========================================
+   BRAND
+========================================= */
 
 .weather-footer-brand {
+    min-width: 0;
     max-width: 300px;
 }
 
 .weather-footer-logo {
-    border: none;
-    outline: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
 
     padding: 0;
 
+    border: none;
     background: transparent;
 
-    display: flex;
-    align-items: center;
+    color: var(--footer-title);
 
-    gap: 9px;
-
-    color: #ffffff;
-
+    font-family: inherit;
     font-size: 19px;
     font-weight: 700;
 
+    text-align: left;
     cursor: pointer;
+
+    transition: opacity 0.2s ease;
 }
 
-.weather-footer-logo strong {
-    margin-left: 3px;
-
-    color: #65b2f0;
+.weather-footer-logo:hover {
+    opacity: 0.85;
 }
 
 .weather-footer-logo-icon {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border-radius: 10px;
+    flex-shrink: 0;
 
-    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--footer-border);
+    border-radius: 12px;
 
-    font-size: 20px;
+    background: rgba(101, 178, 240, 0.10);
+
+    font-size: 21px;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
 }
+
+.weather-footer-logo:hover .weather-footer-logo-icon {
+    transform: translateY(-2px);
+    background: rgba(101, 178, 240, 0.18);
+}
+
+.weather-footer-logo-text {
+    color: var(--footer-title);
+}
+
+.weather-footer-logo strong {
+    margin-left: 3px;
+    color: var(--footer-accent);
+}
+
+/* BRAND DESCRIPTION */
 
 .weather-footer-brand p {
-    margin: 14px 0 0;
+    max-width: 285px;
 
-    color: #aab5c5;
+    margin: 15px 0 0;
+
+    color: var(--footer-text);
 
     font-size: 12px;
-
-    line-height: 1.7;
+    line-height: 1.8;
 }
 
-/* COLUMN */
+/* STATUS */
+
+.weather-footer-status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    margin-top: 18px;
+
+    color: var(--footer-muted);
+
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.weather-footer-status-dot {
+    width: 8px;
+    height: 8px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: #22c55e;
+
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+}
+
+/* =========================================
+   FOOTER COLUMNS
+========================================= */
 
 .weather-footer-column {
-    display: flex;
+    min-width: 0;
 
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
 
-    gap: 10px;
+    gap: 12px;
 }
 
 .weather-footer-column h3 {
-    margin: 0 0 8px;
+    margin: 0 0 7px;
 
-    color: #ffffff;
+    color: var(--footer-title);
 
     font-size: 13px;
     font-weight: 700;
 }
 
-.weather-footer-column button {
-    border: none;
-    outline: none;
+/* LINKS */
+
+.weather-footer-column > button:not(.weather-footer-home) {
+    max-width: 100%;
 
     padding: 0;
 
+    border: none;
     background: transparent;
 
-    color: #aeb9c9;
+    color: var(--footer-text);
 
+    font-family: inherit;
     font-size: 12px;
+
+    text-align: left;
+    line-height: 1.6;
 
     cursor: pointer;
 
-    text-align: left;
-
-    transition: color 0.2s ease;
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 
-.weather-footer-column button:hover {
-    color: #ffffff;
+.weather-footer-column > button:not(.weather-footer-home):hover {
+    color: var(--footer-hover);
+    transform: translateX(3px);
 }
 
-/* ABOUT */
+/* =========================================
+   ABOUT
+========================================= */
 
 .weather-footer-about p {
-    max-width: 260px;
+    max-width: 280px;
 
     margin: 0;
 
-    color: #aab5c5;
+    color: var(--footer-text);
 
     font-size: 12px;
-
-    line-height: 1.7;
+    line-height: 1.8;
 }
 
-/* BOTTOM */
+/* HOME BUTTON */
+
+.weather-footer-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    margin-top: 5px;
+    padding: 10px 14px;
+
+    border: 1px solid var(--footer-border);
+    border-radius: 10px;
+
+    background: rgba(101, 178, 240, 0.08);
+
+    color: var(--footer-accent);
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.weather-footer-home span {
+    font-size: 16px;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
+
+.weather-footer-home:hover {
+    background: rgba(101, 178, 240, 0.15);
+    border-color: var(--footer-accent);
+    transform: translateY(-2px);
+}
+
+.weather-footer-home:hover span {
+    transform: translateX(3px);
+}
+
+/* =========================================
+   BOTTOM COPYRIGHT
+========================================= */
 
 .weather-footer-bottom {
     width: 100%;
 
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--footer-border);
 }
 
 .weather-footer-bottom-container {
-    width: 92%;
-    max-width: 1250px;
+    width: 100%;
+    max-width: 1440px;
 
-    min-height: 52px;
+    min-height: 58px;
 
     margin: 0 auto;
+    padding: 12px 36px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    gap: 20px;
+    gap: 18px;
 
-    color: #8592a5;
+    color: var(--footer-muted);
 
     font-size: 10px;
+    line-height: 1.6;
 }
 
-/* TABLET */
+.weather-footer-bottom-container span {
+    min-width: 0;
+}
+
+/* =========================================
+   KEYBOARD FOCUS
+========================================= */
+
+.weather-footer button:focus-visible {
+    outline: 3px solid var(--footer-accent);
+    outline-offset: 4px;
+    border-radius: 5px;
+}
+
+/* =========================================
+   TABLET
+========================================= */
 
 @media (max-width: 1000px) {
 
     .weather-footer-container {
-        grid-template-columns:
-            1.5fr
-            1fr
-            1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
 
-        gap: 35px;
+        gap: 35px 30px;
+
+        padding: 36px 22px 30px;
+    }
+
+    .weather-footer-brand {
+        max-width: 100%;
+    }
+
+    .weather-footer-bottom-container {
+        padding-right: 22px;
+        padding-left: 22px;
+    }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+    .weather-footer-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        gap: 30px 18px;
+
+        padding: 30px 16px 26px;
+    }
+
+    .weather-footer-brand {
+        grid-column: 1 / -1;
+    }
+
+    .weather-footer-brand p {
+        max-width: 340px;
+    }
+
+    .weather-footer-column {
+        gap: 11px;
     }
 
     .weather-footer-about {
         grid-column: 1 / -1;
     }
-}
 
-/* MOBILE */
-
-@media (max-width: 700px) {
-
-    .weather-footer-container {
-        grid-template-columns: 1fr;
-
-        gap: 30px;
-
-        padding: 35px 0;
-    }
-
-    .weather-footer-about {
-        grid-column: auto;
+    .weather-footer-about p {
+        max-width: 350px;
     }
 
     .weather-footer-bottom-container {
-        min-height: 65px;
+        min-height: auto;
+
+        padding: 17px 16px;
 
         flex-direction: column;
-
         align-items: flex-start;
         justify-content: center;
 
-        gap: 5px;
+        gap: 7px;
     }
 }
+
+/* =========================================
+   EXTRA SMALL MOBILE
+========================================= */
+
+@media (max-width: 380px) {
+
+    .weather-footer-container {
+        padding-right: 10px;
+        padding-left: 10px;
+
+        gap: 26px 12px;
+    }
+
+    .weather-footer-bottom-container {
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    .weather-footer-column > button:not(.weather-footer-home) {
+        overflow-wrap: anywhere;
+    }
+}
+
+/* =========================================
+   REDUCED MOTION
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .weather-footer,
+    .weather-footer button,
+    .weather-footer-logo-icon,
+    .weather-footer-home span {
+        transition: none;
+    }
+}
+
+

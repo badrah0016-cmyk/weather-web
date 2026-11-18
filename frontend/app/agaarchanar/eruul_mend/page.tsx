@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import AgaarHeader from "../AgaarHeader";
+import AgaarFooter from "../AgaarFooter";
 import "./eruul_mend.css";
 
 const pollutants = [
@@ -631,9 +632,14 @@ export default function EruulMendPage() {
             Хүнд эсвэл гэнэт илэрсэн шинж тэмдэгтэй бол эмнэлгийн тусламж авна.
           </p>
         </aside>
+           
       </main>
+<>
 
-    
+</>
+     {/* Агаарын чанарын үндсэн хэсэг */}
+
+    <AgaarFooter />
     </>
   );
 }

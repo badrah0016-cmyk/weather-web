@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import AgaarHeader from "./AgaarHeader";
+import AgaarFooter from "./AgaarFooter";
 import type { Station, AirQualityRow } from "./AgaarchanarMap";
 import {
   POLLUTANT_BY_ID,
@@ -1518,7 +1519,15 @@ export default function AgaarchanarPage() {
             ))}
           </div>
         </section>
+        
       </div>
+         {/* Агаарын чанарын Footer */}
+    <AgaarFooter />
+      
     </main>
+
+    
+
   );
+  
 }

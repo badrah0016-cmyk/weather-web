@@ -690,3 +690,23 @@ html[data-theme="light"] .ag-header .ag-dropdown-link:hover {
         scroll-behavior: auto !important;
     }
 }
+
+
+/* Хуудасны гадна зайг арилгах */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+}
+
+/* Header-ийн дээд зайг арилгах */
+.ag-header {
+    position: sticky;
+    top: 0;
+    margin-top: 0;
+    padding-top: 0;
+    width: 100%;
+    z-index: 9999;
+}

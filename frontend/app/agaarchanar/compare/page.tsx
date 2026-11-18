@@ -17,7 +17,7 @@ import {
 import * as XLSX from "xlsx";
 
 import AgaarHeader from "../AgaarHeader";
-import Footer from "../../hesguud/Footer";
+import AgaarFooter from "../AgaarFooter";
 import "./compare.css";
 
 const API_BASE = "/backend/weather_db";
@@ -1166,7 +1166,11 @@ export default function ComparePage() {
         </section>
       </main>
 
-     
+     <>
+    {/* Агаарын чанарын үндсэн хэсэг */}
+
+    <AgaarFooter />
+</>
     </div>
   );
 }
